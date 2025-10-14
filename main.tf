@@ -7,3 +7,19 @@ provider "proxmox" {
     username = var.virtual_environment_username
   }
 }
+
+resource "proxmox_virtual_environment_vm" "vm" {
+  name      = var.vm_name
+  node_name = "pve"
+
+  disk {
+    datastore_id = "local-lvm"
+    # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
+    # the image is not of import type, so provider will use SSH client to import it
+    file_id   = var.iso_path
+    interface = "virtio0"
+    iothread  = true
+    discard   = "on"
+    size      = var.vm_disk_size
+  }
+}
