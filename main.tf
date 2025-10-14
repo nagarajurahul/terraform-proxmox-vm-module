@@ -23,7 +23,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
 
   source_raw {
     data      = local.userdata_rendered
-    file_name = "example.cloud-config.yaml"
+    file_name = "${var.vm_hostname}.cloud-config.yaml"
   }
 }
 
@@ -43,7 +43,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     type = var.operating_system
   }
 
-  scsi_hardware = "virtio-scsi-pci"
+  scsi_hardware = "virtio-scsi-single" # Faster for high-IO workloads like Docker, K8s
 
   # QEMU, helpful to get IP and other things
   agent {
@@ -79,9 +79,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
     # the image is not of import type, so provider will use SSH client to import it
     import_from = var.iso_path
-    interface   = "virtio0" # fastest for modern workloads
-    iothread    = true      # Makes Docker, K8s faster
-    discard     = "on"      # industry standard to follow during thin-provision and ssds
+    interface   = "scsi0" # fastest for modern workloads
+    iothread    = true    # Makes Docker, K8s faster
+    discard     = "on"    # industry standard to follow during thin-provision and ssds
     backup      = true
     replicate   = true
   }
