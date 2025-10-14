@@ -14,6 +14,15 @@ resource "proxmox_virtual_environment_vm" "vm" {
   tags        = var.tags
   
   node_name = "pve"
+  on_boot   = var.vm_on_boot
+  protection = false
+
+  machine = "q35" # Modern virtual motherboard model, has more support
+  bios = "ovmf" # Modern, supports NVMe, faster, secure boot, GPU passthrough
+
+  operating_system {
+    type = var.operating_system
+  }
   
   cpu {
     cores        = var.cpu
