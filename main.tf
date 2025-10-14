@@ -12,7 +12,7 @@ locals {
   userdata_rendered = templatefile("${path.module}/userdata.tpl", {
     HOSTNAME     = var.vm_hostname
     default_user = var.default_user
-    users        = var.users   # No need to jsonencode here!
+    users        = var.users # No need to jsonencode here!
   })
 }
 
@@ -22,7 +22,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
   node_name    = "proxmox"
 
   source_raw {
-    data = local.userdata_rendered
+    data      = local.userdata_rendered
     file_name = "example.cloud-config.yaml"
   }
 }
@@ -70,7 +70,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   initialization {
-    datastore_id = "local-lvm"
+    datastore_id      = "local-lvm"
     user_data_file_id = ""
   }
 
