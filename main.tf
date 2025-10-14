@@ -16,13 +16,13 @@ resource "proxmox_virtual_environment_vm" "vm" {
   node_name = "pve"
   
   cpu {
-    cores        = 2
+    cores        = var.cpu
     type         = "x86-64-v2-AES"  # recommended for modern CPUs
   }
 
   memory {
-    dedicated = 2048
-    floating  = 2048 # set equal to dedicated to enable ballooning
+    dedicated = var.memory
+    floating  = var.memory # set equal to dedicated to enable ballooning
   }
 
   disk {
