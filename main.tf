@@ -19,7 +19,7 @@ locals {
 resource "proxmox_virtual_environment_file" "cloud_config" {
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "proxmox"
+  node_name    = var.node_name
 
   source_raw {
     data      = local.userdata_rendered
@@ -32,7 +32,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   description = var.description
   tags        = var.tags
 
-  node_name  = "pve"
+  node_name  = var.node_name
   on_boot    = var.vm_on_boot
   protection = false
 
@@ -55,7 +55,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   # Security is most imp
   tpm_state {
-    datastore_id = "local-lvm"
+    datastore_id = var.datastore_id
     version      = "v2.0"
   }
 
@@ -70,12 +70,12 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   initialization {
-    datastore_id      = "local-lvm"
+    datastore_id      = var.datastore_id
     user_data_file_id = ""
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = var.datastore_id
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
     # the image is not of import type, so provider will use SSH client to import it
     import_from = var.iso_path
