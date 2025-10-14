@@ -29,10 +29,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
     datastore_id = "local-lvm"
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
     # the image is not of import type, so provider will use SSH client to import it
-    file_id   = var.iso_path
-    interface = "virtio0"
-    iothread  = true
-    discard   = "on"
+    import_from   = var.iso_path
+    interface = "virtio0" # fastest for modern workloads
+    iothread  = true # Makes Docker, K8s faster
+    discard   = "on" # industry standard to follow during thin-provision
     size      = var.vm_disk_size
   }
 }
