@@ -8,6 +8,25 @@ provider "proxmox" {
   }
 }
 
+locals {
+  userdata_rendered = templatefile("${path.module}/userdata.tpl", {
+    HOSTNAME     = var.vm_hostname
+    default_user = var.default_user
+    users        = var.users   # No need to jsonencode here!
+  })
+}
+
+resource "proxmox_virtual_environment_file" "cloud_config" {
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = "proxmox"
+
+  source_raw {
+    data = local.userdata_rendered
+    file_name = "example.cloud-config.yaml"
+  }
+}
+
 resource "proxmox_virtual_environment_vm" "vm" {
   name        = var.vm_name
   description = var.description
@@ -48,6 +67,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
   memory {
     dedicated = var.memory
     floating  = var.memory # set equal to dedicated to enable ballooning
+  }
+
+  initialization {
+    datastore_id = "local-lvm"
+    user_data_file_id = ""
   }
 
   disk {
