@@ -25,6 +25,15 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   scsi_hardware = "virtio-scsi-pci"
+  
+  # QEMU, helpful to get IP and other things
+  agent {
+    enabled = true
+    timeout = "10m"
+    trim    = true
+    type    = "virtio"
+  }
+
   # Security is most imp
   tpm_state {
     datastore_id = "local-lvm"
@@ -48,7 +57,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
     import_from   = var.iso_path
     interface = "virtio0" # fastest for modern workloads
     iothread  = true # Makes Docker, K8s faster
-    discard   = "on" # industry standard to follow during thin-provision
-    size      = var.vm_disk_size
-  }
+    discard   = "on" # industry standard to follow during thin-provision and ssds
+    backup = true
+    replicate = true
+   }
 }
