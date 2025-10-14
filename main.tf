@@ -23,6 +23,13 @@ resource "proxmox_virtual_environment_vm" "vm" {
   operating_system {
     type = var.operating_system
   }
+
+  scsi_hardware = "virtio-scsi-pci"
+  # Security is most imp
+  tpm_state {
+    datastore_id = "local-lvm"
+    version = "v2.0"
+  }
   
   cpu {
     cores        = var.cpu
