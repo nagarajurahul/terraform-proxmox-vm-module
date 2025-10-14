@@ -10,6 +10,9 @@ provider "proxmox" {
 
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.vm_name
+  description = var.description
+  tags        = var.tags
+  
   node_name = "pve"
 
   disk {
