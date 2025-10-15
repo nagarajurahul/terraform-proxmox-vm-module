@@ -6,7 +6,7 @@ users:
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     shell: /bin/bash
     ssh-authorized-keys:
-%{ for key in user.ssh_keys ~}
+%{ for key in user.ssh_authorized_keys ~}
       - ${key}
 %{ endfor ~}
     lock_passwd: false
