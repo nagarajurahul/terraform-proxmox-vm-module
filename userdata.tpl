@@ -31,8 +31,10 @@ system_info:
 packages:
   - curl
   - git
+  - qemu-guest-agent 
 
 runcmd:
+  - systemctl enable --now qemu-guest-agent
   - hostnamectl set-hostname ${HOSTNAME}
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
