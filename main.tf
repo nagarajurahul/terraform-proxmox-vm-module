@@ -100,6 +100,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     bridge = "vmbr0"
     model  = "virtio"
   }
+
+  efi_disk {
+    datastore_id = var.datastore_id
+    type         = "4m"
+  }
 }
 
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
