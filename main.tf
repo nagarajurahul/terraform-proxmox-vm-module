@@ -87,11 +87,21 @@ resource "proxmox_virtual_environment_vm" "vm" {
     datastore_id = var.datastore_id
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
     # the image is not of import type, so provider will use SSH client to import it
-    import_from = var.iso_path
+    # import_from = var.iso_path
+    import_from  = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
     interface   = "scsi0" # fastest for modern workloads
     iothread    = true    # Makes Docker, K8s faster
     discard     = "on"    # industry standard to follow during thin-provision and ssds
     backup      = true
     replicate   = true
   }
+}
+
+resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
+  content_type = "import"
+  datastore_id = "local"
+  node_name    = var.node_name
+  url          = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+  # need to rename the file to *.qcow2 to indicate the actual file format for import
+  file_name = "noble-server-cloudimg-amd64.qcow2"
 }
