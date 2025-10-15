@@ -1,12 +1,21 @@
-provider "proxmox" {
-  endpoint  = var.virtual_environment_endpoint
-  api_token = var.virtual_environment_api_token
-  insecure  = true
-  ssh {
-    agent    = true
-    username = var.virtual_environment_username
+terraform {
+  required_providers {
+    proxmox = {
+      source = "bpg/proxmox"
+      version = "0.85.1"
+    }
   }
 }
+
+# provider "proxmox" {
+#   endpoint  = var.virtual_environment_endpoint
+#   api_token = var.virtual_environment_api_token
+#   insecure  = true
+#   ssh {
+#     agent    = true
+#     username = var.virtual_environment_username
+#   }
+# }
 
 locals {
   userdata_rendered = templatefile("${path.module}/userdata.tpl", {
