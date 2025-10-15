@@ -80,7 +80,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   initialization {
     datastore_id      = var.datastore_id
-    user_data_file_id = proxmox_virtual_environment_file.cloud_config
+    user_data_file_id = proxmox_virtual_environment_file.cloud_config.id
   }
 
   disk {
