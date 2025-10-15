@@ -95,6 +95,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     backup      = true
     replicate   = true
   }
+
+  network_device {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
 }
 
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
