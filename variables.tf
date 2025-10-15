@@ -134,7 +134,7 @@ variable "default_user" {
 
 variable "users" {
   type = map(object({
-    password = string
+    password            = string
     ssh_authorized_keys = list(string)
   }))
   description = <<EOT
