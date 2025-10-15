@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     proxmox = {
-      source = "bpg/proxmox"
+      source  = "bpg/proxmox"
       version = "0.85.1"
     }
   }
@@ -88,7 +88,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
     # the image is not of import type, so provider will use SSH client to import it
     # import_from = var.iso_path
-    import_from  = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
+    import_from = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
     interface   = "scsi0" # fastest for modern workloads
     iothread    = true    # Makes Docker, K8s faster
     discard     = "on"    # industry standard to follow during thin-provision and ssds
