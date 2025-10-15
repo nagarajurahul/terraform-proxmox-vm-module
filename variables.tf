@@ -134,7 +134,7 @@ variable "default_user" {
 
 variable "users" {
   type = list(object({
-    name              = string
+    name                = string
     ssh_authorized_keys = list(string)
   }))
   description = <<EOT
