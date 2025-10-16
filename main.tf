@@ -18,11 +18,16 @@ terraform {
 # }
 
 locals {
-  userdata_rendered = templatefile("${path.module}/userdata.tpl", {
-    HOSTNAME     = var.vm_hostname
-    default_user = var.default_user
-    users        = var.users # No need to jsonencode here!
-  })
+  userdata_rendered = templatefile(
+    var.control_server ? "${path.module}/control-server-userdata.tpl" : "${path.module}/userdata.tpl",
+    {
+      HOSTNAME     = var.vm_hostname
+      default_user = var.default_user
+      git_username = var.git_username
+      git_email    = var.git_email
+      users        = var.users # No need to jsonencode here!
+    }
+  )
 }
 
 resource "proxmox_virtual_environment_file" "cloud_config" {
@@ -95,11 +100,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     # the image is not of import type, so provider will use SSH client to import it
     import_from = var.iso_path
     # import_from = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
-    interface   = "scsi0" # fastest for modern workloads
-    iothread    = true    # Makes Docker, K8s faster
-    discard     = "on"    # industry standard to follow during thin-provision and ssds
-    backup      = true
-    replicate   = true
+    interface = "scsi0" # fastest for modern workloads
+    iothread  = true    # Makes Docker, K8s faster
+    discard   = "on"    # industry standard to follow during thin-provision and ssds
+    backup    = true
+    replicate = true
   }
 
   network_device {

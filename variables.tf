@@ -161,6 +161,29 @@ EOT
 }
 
 ##############################################
+# Control Server Flag
+##############################################
+variable "control_server" {
+  type        = bool
+  description = "Please define whether this is control server or not"
+}
+
+##############################################
+# Git Config
+##############################################
+variable "git_username" {
+  type        = string
+  description = "Git Username"
+  default     = "git_username"
+}
+
+variable "git_email" {
+  type        = string
+  description = "Git Email"
+  default     = "git_email@email.com"
+}
+
+##############################################
 # Optional Security and Lifecycle Settings
 ##############################################
 
@@ -180,3 +203,4 @@ variable "tpm_version" {
 # - iso_path                     : Path to your cloud-init image (.img or .qcow2)
 # - users                        : List of accounts injected via cloud-init
 ##############################################
+
