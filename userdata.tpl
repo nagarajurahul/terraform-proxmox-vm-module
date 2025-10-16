@@ -1,5 +1,9 @@
 #cloud-config
 
+hostname: ${HOSTNAME}
+fqdn: ${HOSTNAME}.homelab.local
+manage_etc_hosts: true
+
 users:
 %{ for username, user in users ~}
   - name: ${username}
