@@ -122,6 +122,15 @@ The same value is used for 'floating' memory to enable ballooning.
 EOT
 }
 
+variable "disk_size" {
+  type        = number
+  default     = 8
+  description = <<EOT
+Disk Size (in GB) for the VM.
+Please choose this based on your requirements for specific use case.
+EOT
+}
+
 ##############################################
 # Cloud-Init / User Data Variables
 ##############################################

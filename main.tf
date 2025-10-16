@@ -105,6 +105,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     discard   = "on"    # industry standard to follow during thin-provision and ssds
     backup    = true
     replicate = true
+    size      = var.disk_size
   }
 
   network_device {
