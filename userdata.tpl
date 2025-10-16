@@ -96,7 +96,8 @@ runcmd:
   - ufw --force enable
   - systemctl enable --now chrony
   - hostnamectl set-hostname ${HOSTNAME}
+  - apt-get autoremove -y
+  - sync
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
-  - apt autoremove -y
-  - echo "Cloud Init completed successfully. $(date)" >> /var/log/cloud-init-done.log
+  - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
