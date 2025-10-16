@@ -87,7 +87,7 @@ packages:
   - gh
 
 runcmd:
-  # --- System Setup ---
+  # --- Base System Setup ---
   - systemctl enable --now qemu-guest-agent
   - systemctl enable --now ssh
   - systemctl enable --now docker
@@ -100,17 +100,22 @@ runcmd:
   # --- Git Configuration ---
   - git config --global user.name ${git_username}
   - git config --global user.email ${git_email}
-   
+
   # --- HashiCorp Repo & Terraform Installation ---
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list || true
-  - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg || true
+  - sleep 5
   - apt-get update -y
-  - apt-get install -y terraform
+  - apt-get install -y gnupg software-properties-common apt-transport-https curl lsb-release
+  - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
+  - apt-get update -y
+  - apt-get install -y terraform || true
 
-  # --- Cleanup ---
-  - apt autoremove -y
+  # --- Docker Compose ---
+  - apt-get install -y docker-compose-plugin || true
 
-  # --- Message ---
+  # --- Cleanup & Finalization ---
+  - apt-get autoremove -y
+  - sync
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
-  - echo "Cloud Init completed successfully. $(date)" >> /var/log/cloud-init-done.log
+  - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
