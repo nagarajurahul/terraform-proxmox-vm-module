@@ -80,12 +80,10 @@ packages:
   - tmux
   - ansible
   - docker.io
-  - docker-compose-plugin
   - python3
   - python3-pip
 
   # --- Cloud & Integration Tools ---
-  - awscli
   - gh
 
 runcmd:
@@ -104,10 +102,10 @@ runcmd:
   - git config --global user.email ${git_email}
    
   # --- HashiCorp Repo & Terraform Installation ---
-  - bash -c "wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg"
-  - bash -c "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP \"(?<=UBUNTU_CODENAME=).*\" /etc/os-release || lsb_release -cs) main' > /etc/apt/sources.list.d/hashicorp.list"
-  - apt update
-  - apt install -y terraform
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list || true
+  - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg || true
+  - apt-get update -y
+  - apt-get install -y terraform
 
   # --- Cleanup ---
   - apt autoremove -y
