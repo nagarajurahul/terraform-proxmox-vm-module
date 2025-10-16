@@ -175,6 +175,7 @@ EOT
 variable "control_server" {
   type        = bool
   description = "Please define whether this is control server or not"
+  default     = false
 }
 
 ##############################################
