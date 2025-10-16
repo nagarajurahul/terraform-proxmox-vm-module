@@ -3,7 +3,9 @@
 users:
 %{ for username, user in users ~}
   - name: ${username}
+    gecos: ${username}
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: users, admin, sudo
     shell: /bin/bash
     ssh-authorized-keys:
 %{ for key in user.ssh_authorized_keys ~}
