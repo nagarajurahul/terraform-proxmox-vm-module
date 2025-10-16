@@ -28,6 +28,10 @@ system_info:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     shell: /bin/bash
 
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
 packages:
   # --- Base System & Utilities ---
   - vim
@@ -88,4 +92,5 @@ runcmd:
   - hostnamectl set-hostname ${HOSTNAME}
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
+  - apt autoremove -y
   - echo "Cloud Init completed successfully. $(date)" >> /var/log/cloud-init-done.log
