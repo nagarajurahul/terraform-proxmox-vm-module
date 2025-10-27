@@ -4,6 +4,10 @@ hostname: ${HOSTNAME}
 fqdn: ${HOSTNAME}.homelab.local
 manage_etc_hosts: true
 
+bootcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+
 users:
 %{ for username, user in users ~}
   - name: ${username}
@@ -88,7 +92,6 @@ packages:
 
 runcmd:
   # --- Base System Setup ---
-  - systemctl enable --now qemu-guest-agent
   - systemctl enable --now ssh
   - systemctl enable --now docker
   - usermod -aG docker ${default_user}
