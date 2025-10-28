@@ -111,9 +111,6 @@ runcmd:
   - apt-get update -y
   - apt-get install -y terraform || true
 
-  # --- Docker Compose ---
-  - apt-get install -y docker-compose-plugin || true
-
   # --- Cleanup & Finalization ---
   - apt-get autoremove -y
   - sync
