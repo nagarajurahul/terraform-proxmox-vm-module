@@ -77,7 +77,7 @@ packages:
 
   # --- Security & Access ---
   - openssh-server
-  - ufw
+  # - ufw
   - fail2ban
   - sudo
 
@@ -93,8 +93,8 @@ runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
   - systemctl enable --now ssh
-  - ufw allow OpenSSH
-  - ufw --force enable
+  # - ufw allow OpenSSH
+  # - ufw --force enable
   - systemctl enable --now chrony
   - hostnamectl set-hostname ${HOSTNAME}
   - apt-get autoremove -y

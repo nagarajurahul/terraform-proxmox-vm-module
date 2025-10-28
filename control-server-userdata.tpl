@@ -70,7 +70,7 @@ packages:
 
   # --- Security & Access ---
   - openssh-server
-  - ufw
+  # - ufw
   - fail2ban
 
   # --- DevOps / IaC / Automation Tools ---
@@ -95,8 +95,8 @@ runcmd:
   - usermod -aG docker ${default_user}
 
   # --- Security ---
-  - ufw allow OpenSSH
-  - ufw --force enable
+  # - ufw allow OpenSSH
+  # - ufw --force enable
 
   # --- Git Configuration ---
   - git config --global user.name ${git_username}
