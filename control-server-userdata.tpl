@@ -11,7 +11,7 @@ users:
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     groups: users, admin, sudo, docker
     shell: /bin/bash
-    ssh-authorized-keys:
+    ssh_authorized_keys:
 %{ for key in user.ssh_authorized_keys ~}
       - ${key}
 %{ endfor ~}
