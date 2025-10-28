@@ -40,6 +40,7 @@ package_reboot_if_required: true
 
 packages:
   # --- Base System & Utilities ---
+  - sudo
   - vim
   - nano
   - curl
@@ -53,6 +54,7 @@ packages:
   - software-properties-common
   - apt-transport-https
   - qemu-guest-agent
+  - bash-completion
 
   # --- System Monitoring & Performance ---
   - htop
@@ -62,11 +64,13 @@ packages:
   - sysstat
   - ncdu
   - iperf3
+  - lsof
 
   # --- Networking & Troubleshooting ---
   - net-tools
   - dnsutils
   - traceroute
+  - netcat-openbsd
 
   # --- Security & Access ---
   - openssh-server
@@ -85,11 +89,7 @@ packages:
 
   # --- Cloud & Integration Tools ---
   - gh
-
-  # --- Optional / Recommended ---
-  - chrony
   - rsync
-  - bash-completion
 
 runcmd:
   # --- Base System Setup ---
@@ -99,6 +99,7 @@ runcmd:
   - systemctl enable --now docker
   - usermod -aG docker ${default_user}
   - systemctl enable --now chrony
+  - systemctl enable --now fail2ban
   
   # --- Security ---
   # - ufw allow OpenSSH
@@ -109,12 +110,10 @@ runcmd:
   - git config --global user.email ${git_email}
 
   # --- HashiCorp Repo & Terraform Installation ---
-  - sleep 5
-  - apt-get update -y
   - apt-get install -y gnupg software-properties-common apt-transport-https curl lsb-release
   - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
-  - apt-get update -y
+  - apt-get update -y || (sleep 5 && apt-get update -y)
   - apt-get install -y terraform || true
 
   # --- Cleanup & Finalization ---
@@ -123,3 +122,4 @@ runcmd:
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
   - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
+  - touch /var/log/cloud-init.success
