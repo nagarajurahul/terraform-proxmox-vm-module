@@ -39,66 +39,49 @@ package_upgrade: true
 package_reboot_if_required: true
 
 packages:
-  # --- Base System & Utilities ---
-  - vim
-  - nano
+  # Minimal useful tools for worker VMs
+  - sudo
   - curl
   - wget
-  - unzip
-  - zip
-  - jq
-  - htop
-  - tmux
-  - gnupg
   - ca-certificates
-  - software-properties-common
-  - apt-transport-https
+  - gnupg
   - lsb-release
-  - tree
-
-  # --- Networking & Connectivity ---
+  - apt-transport-https
+  - qemu-guest-agent
+  - chrony           
+  - iproute2
+  - iputils-ping
   - net-tools
   - dnsutils
   - traceroute
-  - iproute2
-  - iputils-ping
-  - socat
-  - conntrack
-  - ebtables
-  - ethtool
-  - nfs-common
+  - bash-completion
+  - rsync
+  - lsof
 
-  # --- Monitoring & Debugging ---
-  - iotop
-  - iftop
-  - sysstat
-  - nmon
+  # Monitoring / debugging (small)
+  - htop
   - ncdu
+  - sysstat
 
-  # --- Security & Access ---
+  # Security
   - openssh-server
   # - ufw
   - fail2ban
-  - sudo
-
-  # --- Proxmox Integration ---
-  - qemu-guest-agent
-
-  # --- Optional / Recommended ---
-  - chrony
-  - rsync
-  - bash-completion
 
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
   - systemctl enable --now ssh
+  - systemctl enable --now chrony
+  - systemctl enable --now fail2ban
   # - ufw allow OpenSSH
   # - ufw --force enable
-  - systemctl enable --now chrony
+   # small apt retry for transient failures (no heavy installs here)
+  - apt-get update -y || (sleep 5 && apt-get update -y)
   - hostnamectl set-hostname ${HOSTNAME}
   - apt-get autoremove -y
   - sync
   - ip a >> /var/log/cloud-init-network.log
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
   - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
+  - touch /var/log/cloud-init.success
