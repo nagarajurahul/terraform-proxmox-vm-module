@@ -86,6 +86,11 @@ packages:
   # --- Cloud & Integration Tools ---
   - gh
 
+  # --- Optional / Recommended ---
+  - chrony
+  - rsync
+  - bash-completion
+
 runcmd:
   # --- Base System Setup ---
   - systemctl enable qemu-guest-agent
@@ -93,7 +98,8 @@ runcmd:
   - systemctl enable --now ssh
   - systemctl enable --now docker
   - usermod -aG docker ${default_user}
-
+  - systemctl enable --now chrony
+  
   # --- Security ---
   # - ufw allow OpenSSH
   # - ufw --force enable
