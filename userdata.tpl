@@ -9,6 +9,8 @@ network:
   ethernets:
     eth0:
       dhcp4: true
+      dhcp4-overrides:
+        use-dns: false
       nameservers:
         addresses: [${DNS_SERVERS}]
 
