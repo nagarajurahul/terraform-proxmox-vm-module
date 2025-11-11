@@ -132,6 +132,20 @@ EOT
 }
 
 ##############################################
+# DNS Configuration
+##############################################
+
+variable "dns_servers" {
+  description = "List of DNS servers to configure in the VM"
+  type        = list(string)
+}
+
+variable "dns_domain" {
+  description = "DNS Domain"
+  default     = "homelab.local"
+}
+
+##############################################
 # Cloud-Init / User Data Variables
 ##############################################
 
