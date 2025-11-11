@@ -7,7 +7,7 @@ network:
     #   match:
     #     name: "en*"
     # Match all interfaces with driver name and set interface name as eth0
-    driver:
+    driver0:
       match:
         driver: "${DRIVER}"
       set-name: eth0
@@ -17,4 +17,3 @@ network:
       nameservers:
         addresses: [${DNS_SERVERS}]
         search: [${DNS_DOMAIN}]
-        

@@ -32,7 +32,7 @@ locals {
   network_rendered = templatefile(
     "${path.module}/network.tpl",
     {
-      DRIVER      = var.driver
+      DRIVER      = var.network_driver
       DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
       DNS_DOMAIN  = var.dns_domain
     }

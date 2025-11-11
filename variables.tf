@@ -156,6 +156,11 @@ variable "network_model" {
   default     = "virtio"
 }
 
+variable "network_driver" {
+  description = "The network interface driver used inside the VM (for cloud-init matching). Common values include virtio_net for VirtIO, e1000 for Intel E1000, or vmxnet3 for VMware-compatible NICs."
+  type        = string
+  default     = "virtio_net"
+}
 
 ##############################################
 # DNS Configuration
