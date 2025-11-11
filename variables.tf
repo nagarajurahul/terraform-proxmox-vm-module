@@ -61,17 +61,25 @@ variable "vm_on_boot" {
   description = "Whether the VM should automatically start when the node boots."
 }
 
+variable "vm_protection" {
+  type        = bool
+  default     = true
+  description = "Whether the VM and disks should be protected from deletions."
+}
+
 ##############################################
 # Proxmox Node and Storage Configuration
 ##############################################
 
 variable "node_name" {
   type        = string
+  default     = "pve"
   description = "Name of the Proxmox node where the VM should be created."
 }
 
 variable "datastore_id" {
   type        = string
+  default     = "local-lvm"
   description = <<EOT
 The Proxmox datastore ID where disks, EFI, and TPM state are stored.
 Examples: "local-lvm", "ceph-storage", "ssd-pool".
@@ -94,6 +102,7 @@ EOT
 
 variable "operating_system" {
   type        = string
+  default     = "l26"
   description = <<EOT
 Operating system type recognized by Proxmox for VM optimization.
 Common values: "l26" for Linux, "win11" for Windows 11, "other".
@@ -132,6 +141,23 @@ EOT
 }
 
 ##############################################
+# Network Configuration
+##############################################
+
+variable "network_bridge" {
+  description = "Proxmox bridge to attach VM network interfaces (e.g., vmbr0)."
+  type        = string
+  default     = "vmbr0"
+}
+
+variable "network_model" {
+  description = "Virtual network interface model for the VM (e.g., virtio, e1000, rtl8139)."
+  type        = string
+  default     = "virtio"
+}
+
+
+##############################################
 # DNS Configuration
 ##############################################
 
@@ -142,6 +168,7 @@ variable "dns_servers" {
 
 variable "dns_domain" {
   description = "DNS Domain"
+  type        = string
   default     = "homelab.local"
 }
 
@@ -186,6 +213,7 @@ EOT
 ##############################################
 # Control Server Flag
 ##############################################
+
 variable "control_server" {
   type        = bool
   description = "Please define whether this is control server or not"
@@ -195,6 +223,7 @@ variable "control_server" {
 ##############################################
 # Git Config
 ##############################################
+
 variable "git_username" {
   type        = string
   description = "Git Username"

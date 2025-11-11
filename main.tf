@@ -32,6 +32,7 @@ locals {
   network_rendered = templatefile(
     "${path.module}/network.tpl",
     {
+      DRIVER      = var.driver
       DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
       DNS_DOMAIN  = var.dns_domain
     }
@@ -39,6 +40,7 @@ locals {
 }
 
 resource "proxmox_virtual_environment_file" "cloud_config" {
+  # Please make sure these folders exist
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.node_name
@@ -50,6 +52,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
 }
 
 resource "proxmox_virtual_environment_file" "network_config" {
+  # Please make sure these folders exist
   content_type = "snippets"
   datastore_id = "local"
   node_name    = var.node_name
@@ -67,7 +70,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   node_name  = var.node_name
   on_boot    = var.vm_on_boot
-  protection = false
+
+  # Please set accordingly, disables remove operations on VM and disks
+  protection = var.vm_protection
 
   machine = "q35"  # Modern virtual motherboard model, has more support
   bios    = "ovmf" # Modern, supports NVMe, faster, secure boot, GPU passthrough
@@ -83,7 +88,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     enabled = true
     timeout = "10m"
     trim    = true
-    type    = "virtio"
+    type    = var.network_model
   }
 
   # Security is most imp
@@ -107,10 +112,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     user_data_file_id     = proxmox_virtual_environment_file.cloud_config.id
     network_data_file_id  = proxmox_virtual_environment_file.network_config.id
     
-    dns {
-      domain  = var.dns_domain
-      servers = var.dns_servers
-    }
+    # Not needed as passed via network-config
+    # dns {
+    #   domain  = var.dns_domain
+    #   servers = var.dns_servers
+    # }
 
     ip_config {
       ipv4 {
@@ -134,8 +140,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   network_device {
-    bridge = "vmbr0"
-    model  = "virtio"
+    bridge = var.network_bridge
+    model  = var.network_model
   }
 
   efi_disk {
