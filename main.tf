@@ -22,6 +22,7 @@ locals {
     var.control_server ? "${path.module}/control-server-userdata.tpl" : "${path.module}/userdata.tpl",
     {
       HOSTNAME     = var.vm_hostname
+      DNS_SERVERS  = join(", ", [for s in var.dns_servers : format("%q", s)])     # properly quoted YAML list
       default_user = var.default_user
       git_username = var.git_username
       git_email    = var.git_email
