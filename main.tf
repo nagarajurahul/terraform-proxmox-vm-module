@@ -22,11 +22,18 @@ locals {
     var.control_server ? "${path.module}/control-server-userdata.tpl" : "${path.module}/userdata.tpl",
     {
       HOSTNAME     = var.vm_hostname
-      DNS_SERVERS  = join(", ", [for s in var.dns_servers : format("%q", s)])     # properly quoted YAML list
       default_user = var.default_user
       git_username = var.git_username
       git_email    = var.git_email
       users        = var.users # No need to jsonencode here!
+    }
+  )
+
+  network_rendered = templatefile(
+    "${path.module}/network.tpl",
+    {
+      DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
+      DNS_DOMAIN  = var.dns_domain
     }
   )
 }
@@ -39,6 +46,17 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
   source_raw {
     data      = local.userdata_rendered
     file_name = "${var.vm_hostname}.cloud-config.yaml"
+  }
+}
+
+resource "proxmox_virtual_environment_file" "network_config" {
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = var.node_name
+
+  source_raw {
+    data      = local.network_rendered
+    file_name = "${var.vm_hostname}.network.yaml"
   }
 }
 
@@ -85,8 +103,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   initialization {
-    datastore_id      = var.datastore_id
-    user_data_file_id = proxmox_virtual_environment_file.cloud_config.id
+    datastore_id          = var.datastore_id
+    user_data_file_id     = proxmox_virtual_environment_file.cloud_config.id
+    network_data_file_id  = proxmox_virtual_environment_file.network_config.id
     
     dns {
       domain  = var.dns_domain
