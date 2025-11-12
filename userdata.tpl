@@ -68,6 +68,13 @@ packages:
   # - ufw
   - fail2ban
 
+bootcmd:
+  - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
+  - sleep 10
+  - netplan generate
+  - netplan apply || (sleep 5 && netplan apply)
+  - systemctl restart systemd-networkd || true
+
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
@@ -79,8 +86,6 @@ runcmd:
    # small apt retry for transient failures (no heavy installs here)
   - apt-get update -y || (sleep 5 && apt-get update -y)
   - hostnamectl set-hostname ${HOSTNAME}
-  - echo "Reapplying network (failsafe)" | tee -a /var/log/cloud-init-network.log
-  - netplan apply || (sleep 5 && netplan apply)
   - apt-get autoremove -y
   - sync
   - ip a >> /var/log/cloud-init-network.log

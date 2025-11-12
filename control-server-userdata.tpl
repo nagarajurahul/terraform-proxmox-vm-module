@@ -91,6 +91,13 @@ packages:
   - gh
   - rsync
 
+bootcmd:
+  - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
+  - sleep 10
+  - netplan generate
+  - netplan apply || (sleep 5 && netplan apply)
+  - systemctl restart systemd-networkd || true
+
 runcmd:
   # --- Base System Setup ---
   - systemctl enable qemu-guest-agent
@@ -115,9 +122,6 @@ runcmd:
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
   - apt-get update -y || (sleep 5 && apt-get update -y)
   - apt-get install -y terraform || true
-
-  - echo "Reapplying network (failsafe)" | tee -a /var/log/cloud-init-network.log
-  - netplan apply || (sleep 5 && netplan apply)
 
   # --- Cleanup & Finalization ---
   - apt-get autoremove -y
