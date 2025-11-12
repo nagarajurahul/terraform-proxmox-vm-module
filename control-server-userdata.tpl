@@ -13,7 +13,7 @@ users:
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     groups: [sudo, docker]
     shell: /bin/bash
-    passwd: ${user.hashed_password}
+    hashed_passwd: ${user.hashed_password}
     ssh_authorized_keys:
 %{ for key in user.ssh_authorized_keys ~}
       - ${key}
@@ -29,7 +29,10 @@ system_info:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     shell: /bin/bash
 
-apt_retries: 3
+apt:
+  retries: 3
+  preserve_sources_list: false
+  sources_list: /etc/apt/sources.list
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -48,7 +51,6 @@ packages:
   - lsb-release
   - ca-certificates
   - software-properties-common
-  - apt-transport-https
   - qemu-guest-agent
   - chrony
   - bash-completion
