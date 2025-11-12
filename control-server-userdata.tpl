@@ -116,6 +116,9 @@ runcmd:
   - apt-get update -y || (sleep 5 && apt-get update -y)
   - apt-get install -y terraform || true
 
+  - echo "Reapplying network (failsafe)" | tee -a /var/log/cloud-init-network.log
+  - netplan apply || (sleep 5 && netplan apply)
+
   # --- Cleanup & Finalization ---
   - apt-get autoremove -y
   - sync

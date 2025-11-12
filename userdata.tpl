@@ -79,6 +79,8 @@ runcmd:
    # small apt retry for transient failures (no heavy installs here)
   - apt-get update -y || (sleep 5 && apt-get update -y)
   - hostnamectl set-hostname ${HOSTNAME}
+  - echo "Reapplying network (failsafe)" | tee -a /var/log/cloud-init-network.log
+  - netplan apply || (sleep 5 && netplan apply)
   - apt-get autoremove -y
   - sync
   - ip a >> /var/log/cloud-init-network.log
