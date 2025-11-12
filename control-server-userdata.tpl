@@ -1,16 +1,19 @@
 #cloud-config
 
 hostname: ${HOSTNAME}
-fqdn: ${HOSTNAME}.homelab.local
+fqdn: ${HOSTNAME}.${DNS_DOMAIN}
+
 manage_etc_hosts: true
+timezone: UTC
 
 users:
 %{ for username, user in users ~}
   - name: ${username}
     gecos: ${username} ${HOSTNAME}
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    groups: users, admin, sudo, docker
+    groups: [sudo, docker]
     shell: /bin/bash
+    passwd: ${user.hashed_password}
     ssh_authorized_keys:
 %{ for key in user.ssh_authorized_keys ~}
       - ${key}
@@ -18,15 +21,7 @@ users:
     lock_passwd: false
 %{ endfor ~}
 
-# Allow password login (required for OVF 'password' to work)
-ssh_pwauth: true
-
-chpasswd:
-  list: |
-%{ for username, user in users ~}
-    ${username}:${user.password}
-%{ endfor ~}
-  expire: False
+ssh_pwauth: true  # Enable password authentication for SSH
 
 system_info:
   default_user:
@@ -34,6 +29,7 @@ system_info:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     shell: /bin/bash
 
+apt_retries: 3
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -54,6 +50,7 @@ packages:
   - software-properties-common
   - apt-transport-https
   - qemu-guest-agent
+  - chrony
   - bash-completion
 
   # --- System Monitoring & Performance ---
@@ -92,6 +89,7 @@ packages:
   - rsync
 
 bootcmd:
+  - test -f /var/lib/cloud/bootcmd_done && exit 0 || touch /var/lib/cloud/bootcmd_done
   - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
   - sleep 10
   - netplan generate
@@ -100,8 +98,8 @@ bootcmd:
 
 runcmd:
   # --- Base System Setup ---
-  - systemctl enable qemu-guest-agent
-  - systemctl start qemu-guest-agent
+  - systemctl enable --now qemu-guest-agent
+  - systemctl restart qemu-guest-agent || true
   - systemctl enable --now ssh
   - systemctl enable --now docker
   - usermod -aG docker ${default_user}
@@ -120,7 +118,6 @@ runcmd:
   - apt-get install -y gnupg software-properties-common apt-transport-https curl lsb-release
   - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
-  - apt-get update -y || (sleep 5 && apt-get update -y)
   - apt-get install -y terraform || true
 
   # --- Cleanup & Finalization ---
@@ -130,3 +127,5 @@ runcmd:
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
   - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
   - touch /var/log/cloud-init.success
+
+final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"

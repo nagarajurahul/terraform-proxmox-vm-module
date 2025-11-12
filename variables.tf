@@ -189,7 +189,7 @@ variable "default_user" {
 
 variable "users" {
   type = map(object({
-    password            = string
+    hashed_password     = string
     ssh_authorized_keys = list(string)
   }))
   description = <<EOT
@@ -198,14 +198,14 @@ Map of user definitions for the cloud-init template.
 Example:
 "users": {
     "ubuntu": {
-        "password": "secret-password",
+        "hashed_password": "hashed-secret-password",
         "ssh_keys": [
             "ssh-ed25519 ssh-key-1",
             "ssh-ed25519 ssh-key-2"
         ]
     },
     "rahul": {
-        "password": "secret-password",
+        "hashed_password": "hashed-secret-password",
         "ssh_keys": [
             "ssh-ed25519 ssh-key-1",
             "ssh-ed25519 ssh-key-2"

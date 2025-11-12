@@ -1,16 +1,19 @@
 #cloud-config
 
 hostname: ${HOSTNAME}
-fqdn: ${HOSTNAME}.homelab.local
+fqdn: ${HOSTNAME}.${DNS_DOMAIN}
+
 manage_etc_hosts: true
+timezone: UTC
 
 users:
 %{ for username, user in users ~}
   - name: ${username}
     gecos: ${username}
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    groups: users, admin, sudo
+    groups: [sudo]
     shell: /bin/bash
+    passwd: ${user.hashed_password}
     ssh_authorized_keys:
 %{ for key in user.ssh_authorized_keys ~}
       - ${key}
@@ -18,15 +21,7 @@ users:
     lock_passwd: false
 %{ endfor ~}
 
-# Allow password login (required for OVF 'password' to work)
-ssh_pwauth: true
-
-chpasswd:
-  list: |
-%{ for username, user in users ~}
-    ${username}:${user.password}
-%{ endfor ~}
-  expire: False
+ssh_pwauth: true  # Enable password authentication for SSH
 
 system_info:
   default_user:
@@ -34,6 +29,7 @@ system_info:
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     shell: /bin/bash
 
+apt_retries: 3
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -69,6 +65,7 @@ packages:
   - fail2ban
 
 bootcmd:
+  - test -f /var/lib/cloud/bootcmd_done && exit 0 || touch /var/lib/cloud/bootcmd_done
   - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
   - sleep 10
   - netplan generate
@@ -76,15 +73,13 @@ bootcmd:
   - systemctl restart systemd-networkd || true
 
 runcmd:
-  - systemctl enable qemu-guest-agent
-  - systemctl start qemu-guest-agent
+  - systemctl enable --now qemu-guest-agent
+  - systemctl restart qemu-guest-agent || true
   - systemctl enable --now ssh
   - systemctl enable --now chrony
   - systemctl enable --now fail2ban
   # - ufw allow OpenSSH
   # - ufw --force enable
-   # small apt retry for transient failures (no heavy installs here)
-  - apt-get update -y || (sleep 5 && apt-get update -y)
   - hostnamectl set-hostname ${HOSTNAME}
   - apt-get autoremove -y
   - sync
@@ -92,3 +87,5 @@ runcmd:
   - echo "Welcome to ${HOSTNAME}" > /etc/motd
   - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
   - touch /var/log/cloud-init.success
+
+final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"
