@@ -23,16 +23,6 @@ users:
 
 ssh_pwauth: true  # Enable password authentication for SSH
 
-system_info:
-  default_user:
-    name: ${default_user}
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-    shell: /bin/bash
-
-apt:
-  retries: 3
-  preserve_sources_list: false
-  sources_list: /etc/apt/sources.list
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
