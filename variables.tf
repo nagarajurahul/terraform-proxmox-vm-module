@@ -181,12 +181,6 @@ variable "dns_domain" {
 # Cloud-Init / User Data Variables
 ##############################################
 
-variable "default_user" {
-  type        = string
-  default     = "ubuntu"
-  description = "Default user to be configured in the cloud-init template."
-}
-
 variable "users" {
   type = map(object({
     hashed_password     = string

@@ -23,7 +23,6 @@ locals {
     {
       HOSTNAME     = var.vm_hostname
       DNS_DOMAIN  = var.dns_domain
-      default_user = var.default_user
       git_username = var.git_username
       git_email    = var.git_email
       users        = var.users # No need to jsonencode here!
