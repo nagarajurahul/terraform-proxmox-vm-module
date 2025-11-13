@@ -178,6 +178,16 @@ variable "dns_domain" {
 }
 
 ##############################################
+# Certificates Configuration
+##############################################
+
+variable "ca_root_certificate" {
+  description = "Root Certificate of the Certificate Authority"
+  type        = string
+  default     = ""
+}
+
+##############################################
 # Cloud-Init / User Data Variables
 ##############################################
 

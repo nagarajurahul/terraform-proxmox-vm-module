@@ -6,6 +6,14 @@ fqdn: ${HOSTNAME}.${DNS_DOMAIN}
 manage_etc_hosts: true
 timezone: UTC
 
+write_files:
+  %{ if CA_ROOT_CRT != "" }
+  - path: /usr/local/share/ca-certificates/custom_root_ca.crt
+    permissions: '0644'
+    content: |
+      ${CA_ROOT_CRT}
+  %{ endif }
+
 users:
 %{ for username, user in users ~}
   - name: ${username}
@@ -89,6 +97,9 @@ bootcmd:
   - systemctl restart systemd-networkd || true
 
 runcmd:
+  %{ if  CA_ROOT_CRT!= "" }
+  - update-ca-certificates
+  %{ endif }
   # --- Base System Setup ---
   - systemctl enable --now qemu-guest-agent
   - systemctl restart qemu-guest-agent || true
