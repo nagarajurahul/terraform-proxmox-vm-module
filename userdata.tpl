@@ -11,7 +11,7 @@ write_files:
   - path: /usr/local/share/ca-certificates/custom_root_ca.crt
     permissions: '0644'
     content: |
-${indent(8, CA_ROOT_CRT)}
+      ${join("\n      ", split("\n", trimspace(CA_ROOT_CRT)))}
 %{ endif ~}
 
 users:
