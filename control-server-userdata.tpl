@@ -80,7 +80,6 @@ packages:
   - yq
   - tmux
   - ansible
-  - docker.io
   - python3
   - python3-pip
 
@@ -104,8 +103,6 @@ runcmd:
   - systemctl enable --now qemu-guest-agent
   - systemctl restart qemu-guest-agent || true
   - systemctl enable --now ssh
-  - systemctl enable --now docker
-  - usermod -aG docker ${default_user}
   - systemctl enable --now chrony
   - systemctl enable --now fail2ban
   
