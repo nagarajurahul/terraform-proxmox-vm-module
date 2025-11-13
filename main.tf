@@ -69,8 +69,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   description = var.description
   tags        = var.tags
 
-  node_name  = var.node_name
-  on_boot    = var.vm_on_boot
+  node_name = var.node_name
+  on_boot   = var.vm_on_boot
 
   # Please set accordingly, disables remove operations on VM and disks
   protection = var.vm_protection
@@ -109,10 +109,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   initialization {
-    datastore_id          = var.datastore_id
-    user_data_file_id     = proxmox_virtual_environment_file.cloud_config.id
-    network_data_file_id  = proxmox_virtual_environment_file.network_config.id
-    
+    datastore_id         = var.datastore_id
+    user_data_file_id    = proxmox_virtual_environment_file.cloud_config.id
+    network_data_file_id = proxmox_virtual_environment_file.network_config.id
+
     # Not needed as passed via network-config
     # dns {
     #   domain  = var.dns_domain
