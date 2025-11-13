@@ -7,12 +7,12 @@ manage_etc_hosts: true
 timezone: UTC
 
 write_files:
-%{ if CA_ROOT_CRT != "" }
+%{ if CA_ROOT_CRT != "" ~}
   - path: /usr/local/share/ca-certificates/custom_root_ca.crt
     permissions: '0644'
     content: |
-${indent(6, CA_ROOT_CRT)}
-%{ endif }
+${indent(8, CA_ROOT_CRT)}
+%{ endif ~}
 
 users:
 %{ for username, user in users ~}
@@ -73,9 +73,9 @@ bootcmd:
   - systemctl restart systemd-networkd || true
 
 runcmd:
-%{ if CA_ROOT_CRT != "" }
+%{ if CA_ROOT_CRT != "" ~}
   - update-ca-certificates
-%{ endif }
+%{ endif ~}
   - systemctl enable --now qemu-guest-agent
   - systemctl restart qemu-guest-agent || true
   - systemctl enable --now ssh
