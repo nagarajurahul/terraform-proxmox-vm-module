@@ -19,7 +19,7 @@ users:
   - name: ${username}
     gecos: ${username} ${HOSTNAME}
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    groups: [sudo, docker]
+    groups: [sudo]
     shell: /bin/bash
     hashed_passwd: ${user.hashed_password}
     ssh_authorized_keys:
