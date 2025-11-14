@@ -1,25 +1,36 @@
 #cloud-config
 
+##############################################
+# System Identity
+#############################################
+
 hostname: ${HOSTNAME}
 fqdn: ${HOSTNAME}.${DNS_DOMAIN}
 
 manage_etc_hosts: true
 timezone: UTC
 
+##############################################
+# Write Files Before Package Installation
+#############################################
 write_files:
 %{ if CA_ROOT_CRT != "" ~}
   - path: /usr/local/share/ca-certificates/custom_root_ca.crt
     permissions: '0644'
+    owner: root:root
     content: |
       ${join("\n      ", split("\n", trimspace(CA_ROOT_CRT)))}
 %{ endif ~}
 
+##############################################
+# User Configuration
+#############################################
 users:
 %{ for username, user in users ~}
   - name: ${username}
     gecos: ${username}
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    groups: [sudo]
+    groups: [ sudo, adm, systemd-journal ]
     shell: /bin/bash
     hashed_passwd: ${user.hashed_password}
     ssh_authorized_keys:
@@ -29,8 +40,12 @@ users:
     lock_passwd: false
 %{ endfor ~}
 
-ssh_pwauth: true  # Enable password authentication for SSH
+# Enable password authentication for SSH in Lab (disable in production)
+ssh_pwauth: true
 
+##############################################
+# Package Management
+#############################################
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -64,6 +79,9 @@ packages:
   # - ufw
   - fail2ban
 
+##############################################
+# Boot Commands (Run Before Packages)
+#############################################
 bootcmd:
   - test -f /var/lib/cloud/bootcmd_done && exit 0 || touch /var/lib/cloud/bootcmd_done
   - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
@@ -72,6 +90,9 @@ bootcmd:
   - netplan apply || (sleep 5 && netplan apply)
   - systemctl restart systemd-networkd || true
 
+##############################################
+# Run Commands (After Package Installation)
+#############################################
 runcmd:
 %{ if CA_ROOT_CRT != "" ~}
   - update-ca-certificates
