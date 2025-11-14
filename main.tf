@@ -17,9 +17,17 @@ terraform {
 #   }
 # }
 
+
+##############################################
+# Local Variables & Template Rendering
+##############################################
+
 locals {
+  # Select appropriate cloud-init template based on server type
+  userdata_template = var.control_server ? "control-server-userdata.tpl" : "userdata.tpl"
+
   userdata_rendered = templatefile(
-    var.control_server ? "${path.module}/control-server-userdata.tpl" : "${path.module}/userdata.tpl",
+    "${path.module}/${local.userdata_template}",
     {
       HOSTNAME     = var.vm_hostname
       DNS_DOMAIN   = var.dns_domain
@@ -34,11 +42,16 @@ locals {
     "${path.module}/network.tpl",
     {
       DRIVER      = var.network_driver
-      DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
+      DNS_SERVERS = jsonencode(var.dns_servers)
       DNS_DOMAIN  = var.dns_domain
     }
   )
 }
+
+
+##############################################
+# Cloud-Init Configuration Files
+##############################################
 
 resource "proxmox_virtual_environment_file" "cloud_config" {
   # Please make sure these folders exist
@@ -64,6 +77,11 @@ resource "proxmox_virtual_environment_file" "network_config" {
   }
 }
 
+
+##############################################
+# Virtual Machine Resource
+##############################################
+
 resource "proxmox_virtual_environment_vm" "vm" {
   name        = var.vm_name
   description = var.description
@@ -71,8 +89,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   node_name = var.node_name
   on_boot   = var.vm_on_boot
+  started   = true
 
-  # Please set accordingly, disables remove operations on VM and disks
+  # Please set accordingly for safety critical resources ex: like dns, cert or vault vms, disables remove operations on VM and disks when set to true
   protection = var.vm_protection
 
   machine = "q35"  # Modern virtual motherboard model, has more support
@@ -101,6 +120,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   cpu {
     cores = var.cpu
     type  = "x86-64-v2-AES" # recommended for modern CPUs
+    flags = ["+aes"]
   }
 
   memory {
@@ -113,12 +133,6 @@ resource "proxmox_virtual_environment_vm" "vm" {
     user_data_file_id    = proxmox_virtual_environment_file.cloud_config.id
     network_data_file_id = proxmox_virtual_environment_file.network_config.id
 
-    # Not needed as passed via network-config
-    # dns {
-    #   domain  = var.dns_domain
-    #   servers = var.dns_servers
-    # }
-
     ip_config {
       ipv4 {
         address = "dhcp"
@@ -126,6 +140,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     }
   }
 
+  # Boot disk
   disk {
     datastore_id = var.datastore_id
     # qcow2 image downloaded from https://cloud.debian.org/images/cloud/bookworm/latest/ and renamed to *.img
@@ -138,6 +153,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     backup    = true
     replicate = true
     size      = var.disk_size
+    ssd       = true    # Enable SSD emulation for better performance
   }
 
   network_device {
