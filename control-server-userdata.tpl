@@ -133,36 +133,69 @@ bootcmd:
 # Run Commands (After Package Installation)
 #############################################
 runcmd:
+  # Update CA certificates
 %{ if CA_ROOT_CRT != "" ~}
   - update-ca-certificates
 %{ endif ~}
-  # --- Base System Setup ---
+  
+  # System Services
+  - systemctl daemon-reload
   - systemctl enable --now qemu-guest-agent
-  - systemctl restart qemu-guest-agent || true
+  - systemctl restart qemu-guest-agent
   - systemctl enable --now ssh
   - systemctl enable --now chrony
   - systemctl enable --now fail2ban
+  - systemctl enable --now systemd-resolved
+
+  # Apply sysctl changes
+  - sysctl -p /etc/sysctl.d/99-security.conf
+
+  # Set hostname
+  - hostnamectl set-hostname ${HOSTNAME}
   
-  # --- Security ---
-  # - ufw allow OpenSSH
-  # - ufw --force enable
+  # Configure timezone
+  - timedatectl set-timezone UTC
+  
+  # Enable unattended upgrades
+  - dpkg-reconfigure -plow unattended-upgrades
 
-  # --- Git Configuration ---
-  - git config --global user.name ${git_username}
-  - git config --global user.email ${git_email}
-
-  # --- HashiCorp Repo & Terraform Installation ---
-  - apt-get install -y gnupg software-properties-common apt-transport-https curl lsb-release
+  # Git Configuration for all users
+  - git config --system user.name "${git_username}"
+  - git config --system user.email "${git_email}"
+  - git config --system init.defaultBranch main
+  
+  # Install HashiCorp Repository
   - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
-  - apt-get install -y terraform || true
-
-  # --- Cleanup & Finalization ---
+  - apt-get update
+  
+  # Install Terraform
+  - apt-get install -y terraform
+  
+  # Install Ansible Collections
+  - ansible-galaxy collection install community.general community.docker
+  
+  # Create project directories
+  - mkdir -p /opt/projects/{terraform,ansible,scripts}
+  - chown -R ${default_user}:${default_user} /opt/projects
+  
+  # Cleanup
   - apt-get autoremove -y
+  - apt-get clean
   - sync
-  - ip a >> /var/log/cloud-init-network.log
-  - echo "Welcome to ${HOSTNAME}" > /etc/motd
-  - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
-  - touch /var/log/cloud-init.success
+  
+  # Log network configuration
+  - ip addr show >> /var/log/cloud-init-network.log
+  - ip route show >> /var/log/cloud-init-network.log
+  - cat /etc/resolv.conf >> /var/log/cloud-init-network.log
+
+  # Create success marker
+  - echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
+  - echo "Hostname: ${HOSTNAME}" | tee -a /var/log/cloud-init.success
+  - echo "Environment: ${environment}" | tee -a /var/log/cloud-init.success
+
+  # Log app configuration
+  - terraform version >> /var/log/cloud-init.success 2>&1
+  - ansible --version >> /var/log/cloud-init.success 2>&1
 
 final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"
