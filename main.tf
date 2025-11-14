@@ -46,7 +46,7 @@ locals {
     "${path.module}/network.tpl",
     {
       DRIVER      = var.network_driver
-      DNS_SERVERS = yamlencode(var.dns_servers)
+      DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
       DNS_DOMAIN  = var.dns_domain
     }
   )
