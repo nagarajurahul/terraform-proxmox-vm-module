@@ -46,7 +46,7 @@ locals {
     "${path.module}/network.tpl",
     {
       DRIVER      = var.network_driver
-      DNS_SERVERS = jsonencode(var.dns_servers)
+      DNS_SERVERS = var.dns_servers
       DNS_DOMAIN  = var.dns_domain
     }
   )
