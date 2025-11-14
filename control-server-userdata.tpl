@@ -9,7 +9,6 @@ fqdn: ${HOSTNAME}.${DNS_DOMAIN}
 manage_etc_hosts: true
 prefer_fqdn_over_hostname: true
 
-# Set timezone
 timezone: UTC
 
 ##############################################
@@ -43,11 +42,8 @@ users:
     lock_passwd: false
 %{ endfor ~}
 
-# Enable password authentication for SSH in Lab (disable in production
-ssh_pwauth: true
-
-# IMP - Disable root login in production
-# disable_root: true
+# Disable SSH password auth at cloud-init level too (matches sshd_config)
+ssh_pwauth: false
 
 package_update: true
 package_upgrade: true
@@ -138,7 +134,11 @@ runcmd:
 %{ if CA_ROOT_CRT != "" ~}
   - update-ca-certificates
 %{ endif ~}
-  
+
+  # Make journald persistent
+  - mkdir -p /var/log/journal
+  - systemctl restart systemd-journald
+
   # System Services
   - systemctl daemon-reload
   - systemctl enable --now qemu-guest-agent
@@ -149,7 +149,7 @@ runcmd:
   - systemctl enable --now systemd-resolved
 
   # Apply sysctl changes
-  - sysctl -p /etc/sysctl.d/99-security.conf
+  - sysctl --system
 
   # Set hostname
   - hostnamectl set-hostname ${HOSTNAME}
@@ -211,6 +211,7 @@ final_message: |
   Cloud-init setup complete!
   Hostname: ${HOSTNAME}
   FQDN: ${HOSTNAME}.${DNS_DOMAIN}
+  Environment: ${environment}
   Control Server Ready!
   Terraform: Installed
   Ansible: Installed
