@@ -41,6 +41,16 @@
 # }
 
 ##############################################
+# Control Server Flag
+##############################################
+
+variable "control_server" {
+  type        = bool
+  default     = false
+  description = "Please define whether this is control server or not"
+}
+
+##############################################
 # VM Identity and Metadata
 ##############################################
 
@@ -183,14 +193,14 @@ variable "network_driver" {
 # DNS Configuration
 ##############################################
 
-variable "dns_servers" {
-  type        = list(string)
-  description = "List of DNS servers to configure in the VM"
-}
-
 variable "dns_domain" {
   type        = string
   description = "DNS Domain, ex: company.internal"
+}
+
+variable "dns_servers" {
+  type        = list(string)
+  description = "List of DNS servers to configure in the VM"
 }
 
 ##############################################
@@ -240,16 +250,6 @@ variable "lock_password" {
   type        = bool
   default     = true
   description = "Whether to lock password login, meaning password based login will be disabled if set to true"
-}
-
-##############################################
-# Control Server Flag
-##############################################
-
-variable "control_server" {
-  type        = bool
-  description = "Please define whether this is control server or not"
-  default     = false
 }
 
 ##############################################
