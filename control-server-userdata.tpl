@@ -176,8 +176,6 @@ runcmd:
   - ansible-galaxy collection install community.general community.docker
   
   # Create project directories
-  - mkdir -p /opt/projects/{terraform,ansible,scripts}
-  - chown -R ${default_user}:${default_user} /opt/projects
   
   # Cleanup
   - apt-get autoremove -y
@@ -198,4 +196,21 @@ runcmd:
   - terraform version >> /var/log/cloud-init.success 2>&1
   - ansible --version >> /var/log/cloud-init.success 2>&1
 
-final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"
+##############################################
+# Final Configuration
+##############################################
+power_state:
+  mode: reboot
+  condition: True
+  timeout: 30
+  delay: now
+
+final_message: |
+  ====================================
+  Cloud-init setup complete!
+  Hostname: ${HOSTNAME}
+  FQDN: ${HOSTNAME}.${DNS_DOMAIN}
+  Control Server Ready!
+  Terraform: Installed
+  Ansible: Installed
+  ====================================
