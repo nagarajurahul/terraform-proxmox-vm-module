@@ -124,7 +124,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   # Security is most imp
   tpm_state {
     datastore_id = var.datastore_id
-    version      = "v2.0"
+    version      = var.tpm_version
   }
 
   cpu {
