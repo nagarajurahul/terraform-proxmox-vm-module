@@ -31,7 +31,7 @@ users:
 %{ for username, user in users ~}
   - name: ${username}
     gecos: ${username} ${HOSTNAME}
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    sudo: ['ALL=(ALL) ALL']
     groups: [ sudo, adm, systemd-journal ]
     shell: /bin/bash
     hashed_passwd: ${user.hashed_password}
@@ -39,11 +39,14 @@ users:
 %{ for key in user.ssh_authorized_keys ~}
       - ${key}
 %{ endfor ~}
-    lock_passwd: false
+    lock_passwd: ${LOCK_PASSWORD}
 %{ endfor ~}
 
 # Disable SSH password auth at cloud-init level too (matches sshd_config)
 ssh_pwauth: false
+
+# Disable root account login
+disable_root: true
 
 package_update: true
 package_upgrade: true
