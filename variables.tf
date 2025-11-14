@@ -33,6 +33,7 @@ EOT
 
 variable "virtual_environment_username" {
   type        = string
+  sensitive   = true
   description = <<EOT
 The SSH username used for Proxmox host.
 For example: "root".
@@ -206,6 +207,7 @@ variable "users" {
     hashed_password     = string
     ssh_authorized_keys = list(string)
   }))
+  sensitive   = true
   description = <<EOT
 Map of user definitions for the cloud-init template.
 
