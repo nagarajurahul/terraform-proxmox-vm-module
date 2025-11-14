@@ -161,7 +161,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     backup    = true
     replicate = true
     size      = var.disk_size
-    ssd       = true    # Enable SSD emulation for better performance
+    ssd       = true # Enable SSD emulation for better performance
   }
 
   network_device {
