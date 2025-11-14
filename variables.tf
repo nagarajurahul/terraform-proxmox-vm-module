@@ -155,21 +155,21 @@ EOT
 ##############################################
 
 variable "network_bridge" {
-  description = "Proxmox bridge to attach VM network interfaces (e.g., vmbr0)."
   type        = string
   default     = "vmbr0"
+  description = "Proxmox bridge to attach VM network interfaces (e.g., vmbr0)."
 }
 
 variable "network_model" {
-  description = "Virtual network interface model for the VM (e.g., virtio, e1000, rtl8139)."
   type        = string
   default     = "virtio"
+  description = "Virtual network interface model for the VM (e.g., virtio, e1000, rtl8139)."
 }
 
 variable "network_driver" {
-  description = "The network interface driver used inside the VM (for cloud-init matching). Common values include virtio_net for VirtIO, e1000 for Intel E1000, or vmxnet3 for VMware-compatible NICs."
   type        = string
   default     = "virtio_net"
+  description = "The network interface driver used inside the VM (for cloud-init matching). Common values include virtio_net for VirtIO, e1000 for Intel E1000, or vmxnet3 for VMware-compatible NICs."
 }
 
 ##############################################
@@ -177,14 +177,14 @@ variable "network_driver" {
 ##############################################
 
 variable "dns_servers" {
-  description = "List of DNS servers to configure in the VM"
   type        = list(string)
+  description = "List of DNS servers to configure in the VM"
 }
 
 variable "dns_domain" {
-  description = "DNS Domain"
   type        = string
   default     = "homelab.local"
+  description = "DNS Domain"
 }
 
 ##############################################
@@ -192,9 +192,9 @@ variable "dns_domain" {
 ##############################################
 
 variable "ca_root_certificate" {
-  description = "Root Certificate of the Certificate Authority"
   type        = string
   default     = ""
+  description = "Root Certificate of the Certificate Authority"
 }
 
 ##############################################
