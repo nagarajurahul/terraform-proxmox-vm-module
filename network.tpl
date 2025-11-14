@@ -15,5 +15,5 @@ network:
       dhcp4-overrides:
         use-dns: false
       nameservers:
-        addresses: ${DNS_SERVERS}
+        addresses: [${DNS_SERVERS}]
         search: [${DNS_DOMAIN}]
