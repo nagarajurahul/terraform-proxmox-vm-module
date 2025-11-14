@@ -56,56 +56,67 @@ package_reboot_if_required: true
 # Package Management
 #############################################
 packages:
-  # --- Base System & Utilities ---
-  - sudo
-  - vim
-  - nano
-  - curl
-  - wget
-  - unzip
-  - zip
-  - tree
-  - gnupg
-  - lsb-release
-  - ca-certificates
-  - software-properties-common
-  - qemu-guest-agent
-  - chrony
-  - bash-completion
+# Essential Tools
+- sudo
+- vim
+- nano
+- curl
+- wget
+- unzip
+- zip
+- tree
+- gnupg
+- lsb-release
+- ca-certificates
+- software-properties-common
+- apt-transport-https
 
-  # --- System Monitoring & Performance ---
-  - htop
-  - iotop
-  - iftop
-  - nmon
-  - sysstat
-  - ncdu
-  - iperf3
-  - lsof
+# QEMU Guest Agent
+- qemu-guest-agent
 
-  # --- Networking & Troubleshooting ---
-  - net-tools
-  - dnsutils
-  - traceroute
-  - netcat-openbsd
+# Time Sync
+- chrony
 
-  # --- Security & Access ---
-  - openssh-server
-  # - ufw
-  - fail2ban
+# Networking
+- net-tools
+- dnsutils
+- traceroute
+- netcat-openbsd
+- iproute2
+- iputils-ping
 
-  # --- DevOps / IaC / Automation Tools ---
-  - git
-  - jq
-  - yq
-  - tmux
-  - ansible
-  - python3
-  - python3-pip
+# Monitoring
+- htop
+- iotop
+- iftop
+- nmon
+- sysstat
+- ncdu
+- iperf3
+- lsof
 
-  # --- Cloud & Integration Tools ---
-  - gh
-  - rsync
+# Security
+- openssh-server
+- fail2ban
+- unattended-upgrades
+
+# DevOps Tools
+- git
+- jq
+- yq
+- tmux
+- ansible
+- python3
+- python3-pip
+- python3-apt
+
+# GitHub CLI
+- gh
+
+# Miscellaneous
+- rsync
+- bash-completion
+
 
 ##############################################
 # Boot Commands (Run Before Packages)
