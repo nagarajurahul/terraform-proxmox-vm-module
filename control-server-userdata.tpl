@@ -7,6 +7,9 @@ hostname: ${HOSTNAME}
 fqdn: ${HOSTNAME}.${DNS_DOMAIN}
 
 manage_etc_hosts: true
+prefer_fqdn_over_hostname: true
+
+# Set timezone
 timezone: UTC
 
 ##############################################
@@ -41,6 +44,9 @@ users:
 
 # Enable password authentication for SSH in Lab (disable in production
 ssh_pwauth: true
+
+# Disable root login in production
+# disable_root: true
 
 package_update: true
 package_upgrade: true

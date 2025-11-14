@@ -8,6 +8,9 @@ hostname: ${HOSTNAME}
 fqdn: ${HOSTNAME}.${DNS_DOMAIN}
 
 manage_etc_hosts: true
+prefer_fqdn_over_hostname: true
+
+# Set timezone
 timezone: UTC
 
 ##############################################
@@ -42,6 +45,9 @@ users:
 
 # Enable password authentication for SSH in Lab (disable in production)
 ssh_pwauth: true
+
+# Disable root login in production
+# disable_root: true
 
 ##############################################
 # Package Management
@@ -154,4 +160,18 @@ runcmd:
   - echo "Environment: ${environment}" | tee -a /var/log/cloud-init.success
 
 
-final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"
+##############################################
+# Final Configuration
+##############################################
+power_state:
+  mode: reboot
+  condition: True
+  timeout: 30
+  delay: now
+
+final_message: |
+  ====================================
+  Cloud-init setup complete!
+  Hostname: ${HOSTNAME}
+  FQDN: ${HOSTNAME}.${DNS_DOMAIN}
+  ====================================
