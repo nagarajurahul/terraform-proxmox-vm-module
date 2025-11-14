@@ -190,8 +190,7 @@ variable "dns_servers" {
 
 variable "dns_domain" {
   type        = string
-  default     = "homelab.local"
-  description = "DNS Domain"
+  description = "DNS Domain, ex: company.internal"
 }
 
 ##############################################
@@ -219,14 +218,14 @@ Map of user definitions for the cloud-init template.
 
 Example:
 "users": {
-    "ubuntu": {
+    "user1": {
         "hashed_password": "hashed-secret-password",
         "ssh_keys": [
             "ssh-ed25519 ssh-key-1",
             "ssh-ed25519 ssh-key-2"
         ]
     },
-    "rahul": {
+    "user2": {
         "hashed_password": "hashed-secret-password",
         "ssh_keys": [
             "ssh-ed25519 ssh-key-1",
