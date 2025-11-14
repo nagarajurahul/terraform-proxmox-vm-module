@@ -236,6 +236,12 @@ Example:
 EOT
 }
 
+variable "lock_password" {
+  type        = bool
+  default     = true
+  description = "Whether to lock password login, meaning password based login will be disabled if set to true"
+}
+
 ##############################################
 # Control Server Flag
 ##############################################

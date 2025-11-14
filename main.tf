@@ -35,7 +35,8 @@ locals {
       environment  = var.environment
       git_username = var.git_username
       git_email    = var.git_email
-      users        = var.users # No need to jsonencode here!
+      users        = var.users
+      LOCK_PASSWORD = var.lock_password
     }
   )
 
