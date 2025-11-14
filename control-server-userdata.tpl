@@ -16,6 +16,7 @@ timezone: UTC
 # Write Files Before Package Installation
 #############################################
 write_files:
+  # Root CA Certificate
 %{ if CA_ROOT_CRT != "" ~}
   - path: /usr/local/share/ca-certificates/custom_root_ca.crt
     permissions: '0644'
@@ -45,7 +46,7 @@ users:
 # Enable password authentication for SSH in Lab (disable in production
 ssh_pwauth: true
 
-# Disable root login in production
+# IMP - Disable root login in production
 # disable_root: true
 
 package_update: true
