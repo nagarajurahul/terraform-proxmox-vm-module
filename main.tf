@@ -31,13 +31,13 @@ locals {
   userdata_rendered = templatefile(
     "${path.module}/${local.userdata_template}",
     {
-      HOSTNAME     = var.vm_hostname
-      DNS_DOMAIN   = var.dns_domain
-      CA_ROOT_CRT  = trimspace(var.ca_root_certificate)
-      environment  = var.environment
-      git_username = var.git_username
-      git_email    = var.git_email
-      users        = var.users
+      HOSTNAME      = var.vm_hostname
+      DNS_DOMAIN    = var.dns_domain
+      CA_ROOT_CRT   = trimspace(var.ca_root_certificate)
+      environment   = var.environment
+      git_username  = var.git_username
+      git_email     = var.git_email
+      users         = var.users
       LOCK_PASSWORD = var.lock_password
     }
   )
