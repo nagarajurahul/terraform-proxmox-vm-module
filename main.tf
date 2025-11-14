@@ -63,6 +63,10 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
     data      = local.userdata_rendered
     file_name = "${var.vm_hostname}.cloud-config.yaml"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "proxmox_virtual_environment_file" "network_config" {
@@ -74,6 +78,10 @@ resource "proxmox_virtual_environment_file" "network_config" {
   source_raw {
     data      = local.network_rendered
     file_name = "${var.vm_hostname}.network.yaml"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -164,6 +172,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   efi_disk {
     datastore_id = var.datastore_id
     type         = "4m"
+  }
+
+  lifecycle {
+    prevent_destroy = false
   }
 }
 
