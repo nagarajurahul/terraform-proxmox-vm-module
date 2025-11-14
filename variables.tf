@@ -78,6 +78,12 @@ variable "vm_protection" {
   description = "Whether the VM and disks should be protected from deletions."
 }
 
+variable "environment" {
+  type        = string
+  default     = "prod"
+  description = "Environment where we deploying the VM. Ex: prod, staging, dev, test, homelab"
+}
+
 ##############################################
 # Proxmox Node and Storage Configuration
 ##############################################
