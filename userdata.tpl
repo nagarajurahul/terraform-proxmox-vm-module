@@ -51,33 +51,51 @@ package_upgrade: true
 package_reboot_if_required: true
 
 packages:
-  # Minimal useful tools for worker VMs
-  - sudo
-  - curl
-  - wget
-  - ca-certificates
-  - gnupg
-  - lsb-release
-  - qemu-guest-agent
-  - chrony           
-  - iproute2
-  - iputils-ping
-  - net-tools
-  - dnsutils
-  - traceroute
-  - bash-completion
-  - rsync
-  - lsof
+# Essential System Tools
+- sudo
+- curl
+- wget
+- ca-certificates
+- gnupg
+- lsb-release
+- apt-transport-https
+- software-properties-common
 
-  # Monitoring / debugging (small)
-  - htop
-  - ncdu
-  - sysstat
+# QEMU Guest Agent (Critical for Proxmox, To get IP as well)
+- qemu-guest-agent
 
-  # Security
-  - openssh-server
-  # - ufw
-  - fail2ban
+# Time Synchronization
+- chrony
+
+# Networking Tools
+- iproute2
+- iputils-ping
+- net-tools
+- dnsutils
+- traceroute
+- netcat-openbsd
+
+# System Monitoring
+- htop
+- iotop
+- ncdu
+- sysstat
+- lsof
+
+# Security
+- openssh-server
+- fail2ban
+- unattended-upgrades
+
+# Python (for Ansible)
+- python3
+- python3-pip
+- python3-apt
+
+# Miscellaneous
+- vim
+- rsync
+- bash-completion
 
 ##############################################
 # Boot Commands (Run Before Packages)
