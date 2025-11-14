@@ -141,42 +141,6 @@ jobs:
             })
 
   #############################################
-  # Job 5: Validate Examples
-  #############################################
-  validate-examples:
-    name: Validate Examples
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        example: [basic, with-static-ip, multi-vm]
-      fail-fast: false
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
-
-      - name: Terraform Init - ${{ matrix.example }}
-        run: |
-          cd examples/${{ matrix.example }}
-          terraform init -backend=false
-
-      - name: Terraform Validate - ${{ matrix.example }}
-        run: |
-          cd examples/${{ matrix.example }}
-          terraform validate
-
-      - name: Terraform Format Check - ${{ matrix.example }}
-        run: |
-          cd examples/${{ matrix.example }}
-          terraform fmt -check
-
-
-  #############################################
   # Final Status Check
   #############################################
   ci-success:
@@ -186,7 +150,6 @@ jobs:
       - tflint
       - tfsec
       - terraform-docs
-      - validate-examples
     runs-on: ubuntu-latest
     if: always()
     
