@@ -48,13 +48,13 @@ ssh_pwauth: false
 # Disable root account login
 disable_root: true
 
+##############################################
+# Package Management
+#############################################
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
 
-##############################################
-# Package Management
-#############################################
 packages:
 # Essential Tools
 - sudo
