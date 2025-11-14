@@ -47,7 +47,7 @@
 variable "control_server" {
   type        = bool
   default     = false
-  description = "Please define whether this is control server or not"
+  description = "Please define whether this is control server or not. Control server flag will determine the cloud-init template."
 }
 
 ##############################################
@@ -91,7 +91,7 @@ variable "vm_protection" {
 variable "environment" {
   type        = string
   default     = "prod"
-  description = "Environment where we deploying the VM. Ex: prod, staging, dev, test, homelab"
+  description = "Deployment Environment. Ex: prod, staging, dev, test, homelab"
 }
 
 ##############################################
@@ -101,7 +101,10 @@ variable "environment" {
 variable "node_name" {
   type        = string
   default     = "pve"
-  description = "Name of the Proxmox node where the VM should be created."
+  description = <<EOT
+Name of the Proxmox node where the VM should be created.
+Example: "pve", "proxmox".
+EOT
 }
 
 variable "datastore_id" {
@@ -249,7 +252,10 @@ EOT
 variable "lock_password" {
   type        = bool
   default     = true
-  description = "Whether to lock password login, meaning password based login will be disabled if set to true"
+  description = <<EOT
+Whether to lock password login.
+Meaning: password based login will be disabled if set to true.
+EOT
 }
 
 ##############################################
@@ -258,14 +264,14 @@ variable "lock_password" {
 
 variable "git_username" {
   type        = string
-  description = "Git Username"
   default     = "git_username"
+  description = "Git Username"
 }
 
 variable "git_email" {
   type        = string
-  description = "Git Email"
   default     = "git_email@email.com"
+  description = "Git Email"
 }
 
 ##############################################
