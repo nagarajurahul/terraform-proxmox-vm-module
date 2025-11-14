@@ -96,6 +96,7 @@ packages:
 - openssh-server
 - fail2ban
 - unattended-upgrades
+- auditd
 
 # DevOps Tools
 - git
@@ -138,6 +139,11 @@ runcmd:
   # Make journald persistent
   - mkdir -p /var/log/journal
   - systemctl restart systemd-journald
+
+  # Auditd
+  - systemctl enable --now auditd
+  - auditctl -w /etc/passwd -p wa -k passwd_changes
+  - auditctl -w /etc/shadow -p wa -k shadow_changes
 
   # System Services
   - systemctl daemon-reload
