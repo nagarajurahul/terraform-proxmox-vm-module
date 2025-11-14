@@ -2,43 +2,43 @@
 # Proxmox Provider Variables
 ##############################################
 
-variable "virtual_environment_endpoint" {
-  type        = string
-  description = <<EOT
-The API endpoint of your Proxmox Virtual Environment.
-Example: "https://192.168.0.120:8006/api2/json"
-Used by the provider to communicate with the Proxmox API.
-EOT
+# variable "virtual_environment_endpoint" {
+#   type        = string
+#   description = <<EOT
+# The API endpoint of your Proxmox Virtual Environment.
+# Example: "https://192.168.0.120:8006/api2/json"
+# Used by the provider to communicate with the Proxmox API.
+# EOT
 
-  validation {
-    condition     = can(regex("^https://", var.virtual_environment_endpoint))
-    error_message = "Endpoint must start with https://"
-  }
-}
+#   validation {
+#     condition     = can(regex("^https://", var.virtual_environment_endpoint))
+#     error_message = "Endpoint must start with https://"
+#   }
+# }
 
-variable "virtual_environment_api_token" {
-  type        = string
-  sensitive   = true
-  description = <<EOT
-The API token used to authenticate with the Proxmox VE API.
-Recommended format: "user@pam!tokenid=tokenvalue".
-Store securely in environment variables or Terraform Cloud variables.
-EOT
+# variable "virtual_environment_api_token" {
+#   type        = string
+#   sensitive   = true
+#   description = <<EOT
+# The API token used to authenticate with the Proxmox VE API.
+# Recommended format: "user@pam!tokenid=tokenvalue".
+# Store securely in environment variables or Terraform Cloud variables.
+# EOT
 
-  validation {
-    condition     = can(regex("^[^@]+@[^!]+![^=]+=.+$", var.virtual_environment_api_token))
-    error_message = "API token must be in format: user@realm!tokenid=secret"
-  }
-}
+#   validation {
+#     condition     = can(regex("^[^@]+@[^!]+![^=]+=.+$", var.virtual_environment_api_token))
+#     error_message = "API token must be in format: user@realm!tokenid=secret"
+#   }
+# }
 
-variable "virtual_environment_username" {
-  type        = string
-  sensitive   = true
-  description = <<EOT
-The SSH username used for Proxmox host.
-For example: "root".
-EOT
-}
+# variable "virtual_environment_username" {
+#   type        = string
+#   sensitive   = true
+#   description = <<EOT
+# The SSH username used for Proxmox host.
+# For example: "root".
+# EOT
+# }
 
 ##############################################
 # VM Identity and Metadata
