@@ -112,22 +112,46 @@ bootcmd:
 # Run Commands (After Package Installation)
 #############################################
 runcmd:
+  # Update CA certificates
 %{ if CA_ROOT_CRT != "" ~}
   - update-ca-certificates
 %{ endif ~}
+  
+  # System Services
+  - systemctl daemon-reload
   - systemctl enable --now qemu-guest-agent
-  - systemctl restart qemu-guest-agent || true
+  - systemctl restart qemu-guest-agent
   - systemctl enable --now ssh
   - systemctl enable --now chrony
   - systemctl enable --now fail2ban
-  # - ufw allow OpenSSH
-  # - ufw --force enable
+  - systemctl enable --now systemd-resolved
+  
+  # Apply sysctl changes
+  - sysctl -p /etc/sysctl.d/99-security.conf
+  
+  # Set hostname
   - hostnamectl set-hostname ${HOSTNAME}
+  
+  # Configure timezone
+  - timedatectl set-timezone UTC
+  
+  # Enable unattended upgrades
+  - dpkg-reconfigure -plow unattended-upgrades
+  
+  # Cleanup
   - apt-get autoremove -y
+  - apt-get clean
   - sync
-  - ip a >> /var/log/cloud-init-network.log
-  - echo "Welcome to ${HOSTNAME}" > /etc/motd
-  - echo "Cloud Init completed successfully on $(date)" | tee -a /var/log/cloud-init-done.log
-  - touch /var/log/cloud-init.success
+  
+  # Log network configuration
+  - ip addr show >> /var/log/cloud-init-network.log
+  - ip route show >> /var/log/cloud-init-network.log
+  - cat /etc/resolv.conf >> /var/log/cloud-init-network.log
+  
+  # Create success marker
+  - echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
+  - echo "Hostname: ${HOSTNAME}" | tee -a /var/log/cloud-init.success
+  - echo "Environment: ${environment}" | tee -a /var/log/cloud-init.success
+
 
 final_message: "Cloud-init completed on ${HOSTNAME} at $(date -u)"
