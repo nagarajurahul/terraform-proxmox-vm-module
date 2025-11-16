@@ -26,7 +26,7 @@ terraform {
 
 locals {
   # Select appropriate cloud-init template based on server type
-  userdata_template = var.control_server ? "control-server-userdata.tpl" : "userdata.tpl"
+  userdata_template = var.control_server ? "control-server-user-data.tpl" : "user-data.tpl"
 
   userdata_rendered = templatefile(
     "${path.module}/${local.userdata_template}",
@@ -52,7 +52,7 @@ locals {
   )
 
   network_rendered = templatefile(
-    "${path.module}/network.tpl",
+    "${path.module}/network-config.tpl",
     {
       DRIVER      = var.network_driver
       DNS_SERVERS = join(", ", [for s in var.dns_servers : format("%q", s)])
