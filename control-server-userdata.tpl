@@ -24,6 +24,102 @@ write_files:
       ${join("\n      ", split("\n", trimspace(CA_ROOT_CRT)))}
 %{ endif ~}
 
+  # SSH Hardening Configuration
+  - path: /etc/ssh/sshd_config.d/99-hardening.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      # SSH Hardening
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      ChallengeResponseAuthentication no
+      UsePAM yes
+      X11Forwarding no
+      PrintMotd no
+      AcceptEnv LANG LC_*
+      Subsystem sftp /usr/lib/openssh/sftp-server
+      ClientAliveInterval ${ssh_client_alive_interval}
+      ClientAliveCountMax ${ssh_client_alive_count_max} 
+      MaxAuthTries ${ssh_max_auth_tries} 
+      MaxSessions ${ssh_max_sessions}
+
+  # Sysctl Security Hardening
+  - path: /etc/sysctl.d/99-security.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      # Network Security
+      net.ipv4.conf.all.rp_filter = 1
+      net.ipv4.conf.default.rp_filter = 1
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.default.accept_redirects = 0
+      net.ipv4.conf.all.secure_redirects = 0
+      net.ipv4.conf.default.secure_redirects = 0
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.default.send_redirects = 0
+      net.ipv4.icmp_echo_ignore_broadcasts = 1
+      net.ipv4.icmp_ignore_bogus_error_responses = 1
+      net.ipv4.tcp_syncookies = 1
+
+      # IPv6 Security
+      net.ipv6.conf.all.accept_redirects = 0
+      net.ipv6.conf.default.accept_redirects = 0
+
+      # Kernel Hardening
+      kernel.dmesg_restrict = 1
+      kernel.kptr_restrict = 2
+
+  # Fail2ban Configuration
+  - path: /etc/fail2ban/jail.local
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [DEFAULT]
+      maxretry = ${fail2ban_max_retry}
+      bantime = ${fail2ban_ban_time}
+      findtime = ${fail2ban_find_time}
+
+      [sshd]
+      enabled = true
+      port = ssh
+      logpath = %(sshd_log)s
+      backend = %(sshd_backend)s
+
+  # Unattended Upgrades Configuration
+  - path: /etc/apt/apt.conf.d/50unattended-upgrades
+    permissions: '0644'
+    owner: root:root
+    content: |
+      Unattended-Upgrade::Allowed-Origins {
+          "$${distro_id}:$${distro_codename}-security";
+          "$${distro_id}ESMApps:$${distro_codename}-apps-security";
+          "$${distro_id}ESM:$${distro_codename}-infra-security";
+      };
+      Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+      Unattended-Upgrade::MinimalSteps "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::Automatic-Reboot "false";
+
+  # Enable unattended upgrades completely non-interactively
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    permissions: '0644'
+    owner: root:root
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Download-Upgradeable-Packages "1";
+      APT::Periodic::AutocleanInterval "7";
+      APT::Periodic::Unattended-Upgrade "1";
+
+  # Persistent journald logs (useful for debugging prod issues)
+  - path: /etc/systemd/journald.conf.d/99-persistent.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [Journal]
+      Storage=persistent
+      SystemMaxUse=1G
+
 ##############################################
 # User Configuration
 #############################################
