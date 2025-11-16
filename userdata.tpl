@@ -165,10 +165,14 @@ runcmd:
   - cat /etc/resolv.conf >> /var/log/cloud-init-network.log
   
   # Create success marker
-  - echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
-  - echo "Hostname: ${HOSTNAME}" | tee -a /var/log/cloud-init.success
-  - echo "Environment: ${environment}" | tee -a /var/log/cloud-init.success
+  - |
+    echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
 
+  - |
+    echo "Hostname: ${HOSTNAME}" >> /var/log/cloud-init.success
+
+  - |
+    echo "Environment: ${environment}" >> /var/log/cloud-init.success
 
 ##############################################
 # Final Configuration
