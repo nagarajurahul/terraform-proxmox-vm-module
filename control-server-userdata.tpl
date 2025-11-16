@@ -152,11 +152,13 @@ runcmd:
   - systemctl enable --now qemu-guest-agent
   - systemctl restart qemu-guest-agent
   - systemctl enable --now ssh
+  - systemctl restart ssh
   - systemctl enable --now chrony
   - systemctl enable --now fail2ban
   - systemctl enable --now systemd-resolved
 
   # Apply sysctl changes
+  - sysctl -p /etc/sysctl.d/99-security.conf
   - sysctl --system
 
   # Set hostname
@@ -164,9 +166,6 @@ runcmd:
   
   # Configure timezone
   - timedatectl set-timezone UTC
-  
-  # Enable unattended upgrades
-  - dpkg-reconfigure -plow unattended-upgrades
 
   # Git Configuration for all users
   - git config --system user.name "${git_username}"
