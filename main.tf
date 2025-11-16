@@ -66,7 +66,7 @@ locals {
 # Cloud-Init Configuration Files
 ##############################################
 
-resource "proxmox_virtual_environment_file" "cloud_config" {
+resource "proxmox_virtual_environment_file" "user_data" {
   # Please make sure these folders exist
   content_type = "snippets"
   datastore_id = "local"
@@ -74,7 +74,7 @@ resource "proxmox_virtual_environment_file" "cloud_config" {
 
   source_raw {
     data      = local.userdata_rendered
-    file_name = "${var.vm_hostname}.cloud-config.yaml"
+    file_name = "${var.vm_hostname}.user-data.yaml"
   }
 
   lifecycle {
@@ -90,7 +90,7 @@ resource "proxmox_virtual_environment_file" "network_config" {
 
   source_raw {
     data      = local.network_rendered
-    file_name = "${var.vm_hostname}.network.yaml"
+    file_name = "${var.vm_hostname}.network-config.yaml"
   }
 
   lifecycle {
@@ -151,7 +151,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   initialization {
     datastore_id         = var.datastore_id
-    user_data_file_id    = proxmox_virtual_environment_file.cloud_config.id
+    user_data_file_id    = proxmox_virtual_environment_file.user_data.id
     network_data_file_id = proxmox_virtual_environment_file.network_config.id
 
     ip_config {
