@@ -71,6 +71,15 @@ write_files:
       kernel.dmesg_restrict = 1
       kernel.kptr_restrict = 2
 
+  # Persistent journald logs (useful for debugging prod issues)
+  - path: /etc/systemd/journald.conf.d/99-persistent.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [Journal]
+      Storage=persistent
+      SystemMaxUse=1G
+
 ##############################################
 # User Configuration
 #############################################
