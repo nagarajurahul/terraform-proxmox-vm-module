@@ -102,6 +102,16 @@ write_files:
       Unattended-Upgrade::Remove-Unused-Dependencies "true";
       Unattended-Upgrade::Automatic-Reboot "false";
 
+  # Enable unattended upgrades completely non-interactively
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    permissions: '0644'
+    owner: root:root
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Download-Upgradeable-Packages "1";
+      APT::Periodic::AutocleanInterval "7";
+      APT::Periodic::Unattended-Upgrade "1";
+      
   # Persistent journald logs (useful for debugging prod issues)
   - path: /etc/systemd/journald.conf.d/99-persistent.conf
     permissions: '0644'
@@ -238,10 +248,7 @@ runcmd:
   
   # Configure timezone
   - timedatectl set-timezone UTC
-  
-  # Enable unattended upgrades
-  - dpkg-reconfigure -plow unattended-upgrades
-  
+
   # Cleanup
   - apt-get autoremove -y
   - apt-get clean
