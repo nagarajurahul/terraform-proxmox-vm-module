@@ -71,6 +71,21 @@ write_files:
       kernel.dmesg_restrict = 1
       kernel.kptr_restrict = 2
 
+  # Unattended Upgrades Configuration
+  - path: /etc/apt/apt.conf.d/50unattended-upgrades
+    permissions: '0644'
+    owner: root:root
+    content: |
+      Unattended-Upgrade::Allowed-Origins {
+          "${distro_id}:${distro_codename}-security";
+          "${distro_id}ESMApps:${distro_codename}-apps-security";
+          "${distro_id}ESM:${distro_codename}-infra-security";
+      };
+      Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+      Unattended-Upgrade::MinimalSteps "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::Automatic-Reboot "false";
+
   # Persistent journald logs (useful for debugging prod issues)
   - path: /etc/systemd/journald.conf.d/99-persistent.conf
     permissions: '0644'
