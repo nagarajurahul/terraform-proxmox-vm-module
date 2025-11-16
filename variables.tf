@@ -305,6 +305,35 @@ variable "ssh_max_sessions" {
 }
 
 ##############################################
+# Fail2Ban Parameters
+##############################################
+
+variable "fail2ban_max_retry" {
+  type        = number
+  description = <<EOT
+    Number of failed authentication attempts allowed before Fail2ban
+    bans the source IP. Lower values increase security. Recommended: 3–5.
+EOT
+}
+
+variable "fail2ban_ban_time" {
+  type        = number
+  description = <<EOT
+    Number of seconds an IP should remain banned after exceeding maxretry.
+    Recommended: 600 (10m), 3600 (1h), or higher for production systems.
+EOT
+}
+
+variable "fail2ban_find_time" {
+  type        = number
+  description = <<EOT
+    Time window (in seconds) during which Fail2ban counts authentication
+    failures. If the number of failures exceeds maxretry within this window,
+    a ban is applied. Recommended: 300–600 seconds.
+EOT
+}
+
+##############################################
 # Example Usage Notes
 ##############################################
 # - virtual_environment_endpoint : Proxmox API URL
