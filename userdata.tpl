@@ -25,6 +25,26 @@ write_files:
       ${join("\n      ", split("\n", trimspace(CA_ROOT_CRT)))}
 %{ endif ~}
 
+  # SSH Hardening Configuration
+  - path: /etc/ssh/sshd_config.d/99-hardening.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      # SSH Hardening
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      ChallengeResponseAuthentication no
+      UsePAM yes
+      X11Forwarding no
+      PrintMotd no
+      AcceptEnv LANG LC_*
+      Subsystem sftp /usr/lib/openssh/sftp-server
+      ClientAliveInterval ${ssh_client_alive_interval}
+      ClientAliveCountMax ${ssh_client_alive_count_max} 
+      MaxAuthTries ${ssh_max_auth_tries} 
+      MaxSessions ${ssh_max_sessions}
+
 ##############################################
 # User Configuration
 #############################################

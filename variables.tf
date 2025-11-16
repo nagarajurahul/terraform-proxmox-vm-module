@@ -285,6 +285,26 @@ variable "tpm_version" {
 }
 
 ##############################################
+# SSH Hardening Parameters
+##############################################
+
+variable "ssh_client_alive_interval" {
+  type = number
+}
+
+variable "ssh_client_alive_count_max" {
+  type = number
+}
+
+variable "ssh_max_auth_tries" {
+  type = number
+}
+
+variable "ssh_max_sessions" {
+  type = number
+}
+
+##############################################
 # Example Usage Notes
 ##############################################
 # - virtual_environment_endpoint : Proxmox API URL
