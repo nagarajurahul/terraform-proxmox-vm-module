@@ -71,6 +71,22 @@ write_files:
       kernel.dmesg_restrict = 1
       kernel.kptr_restrict = 2
 
+  # Fail2ban Configuration
+  - path: /etc/fail2ban/jail.local
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [DEFAULT]
+      maxretry = ${fail2ban_max_retry}
+      bantime = ${fail2ban_ban_time}
+      findtime = ${fail2ban_find_time}
+
+      [sshd]
+      enabled = true
+      port = ssh
+      logpath = %(sshd_log)s
+      backend = %(sshd_backend)s
+
   # Unattended Upgrades Configuration
   - path: /etc/apt/apt.conf.d/50unattended-upgrades
     permissions: '0644'

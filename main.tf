@@ -44,6 +44,10 @@ locals {
       ssh_client_alive_count_max = var.ssh_client_alive_count_max
       ssh_max_auth_tries         = var.ssh_max_auth_tries
       ssh_max_sessions           = var.ssh_max_sessions
+
+      fail2ban_max_retry = var.fail2ban_max_retry
+      fail2ban_ban_time  = var.fail2ban_ban_time
+      fail2ban_find_time = var.fail2ban_find_time
     }
   )
 
