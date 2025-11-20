@@ -127,7 +127,7 @@ users:
 %{ for username, user in users ~}
   - name: ${username}
     gecos: ${username} ${HOSTNAME}
-    sudo: ['ALL=(ALL) ALL']
+    sudo: [ 'ALL=(ALL) NOPASSWD:ALL' ]
     groups: [ sudo, adm, systemd-journal ]
     shell: /bin/bash
     hashed_passwd: ${user.hashed_password}
