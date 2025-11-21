@@ -41,8 +41,8 @@ write_files:
       AcceptEnv LANG LC_*
       Subsystem sftp /usr/lib/openssh/sftp-server
       ClientAliveInterval ${ssh_client_alive_interval}
-      ClientAliveCountMax ${ssh_client_alive_count_max} 
-      MaxAuthTries ${ssh_max_auth_tries} 
+      ClientAliveCountMax ${ssh_client_alive_count_max}
+      MaxAuthTries ${ssh_max_auth_tries}
       MaxSessions ${ssh_max_sessions}
 
   # Sysctl Security Hardening
@@ -111,7 +111,7 @@ write_files:
       APT::Periodic::Download-Upgradeable-Packages "1";
       APT::Periodic::AutocleanInterval "7";
       APT::Periodic::Unattended-Upgrade "1";
-      
+
   # Persistent journald logs (useful for debugging prod issues)
   - path: /etc/systemd/journald.conf.d/99-persistent.conf
     permissions: '0644'
@@ -120,6 +120,14 @@ write_files:
       [Journal]
       Storage=persistent
       SystemMaxUse=1G
+
+  # Persistent auditd rules
+  - path: /etc/audit/rules.d/99-hardening.rules
+    permissions: '0640'
+    owner: root:root
+    content: |
+      -w /etc/passwd -p wa -k passwd_changes
+      -w /etc/shadow -p wa -k shadow_changes
 
 ##############################################
 # User Configuration
@@ -190,7 +198,7 @@ packages:
 - unattended-upgrades
 - auditd
 
-# Python (for Ansible)
+# Python (for Ansible/automation from control node)
 - python3
 - python3-pip
 - python3-apt
@@ -217,35 +225,35 @@ bootcmd:
 runcmd:
   # Update CA certificates
 %{ if CA_ROOT_CRT != "" ~}
-  - update-ca-certificates
+  - update-ca-certificates || true
 %{ endif ~}
 
   # Make journald persistent
   - mkdir -p /var/log/journal
-  - systemctl restart systemd-journald
+  - systemctl restart systemd-journald || true
 
   # Auditd
-  - systemctl enable --now auditd
-  - auditctl -w /etc/passwd -p wa -k passwd_changes
-  - auditctl -w /etc/shadow -p wa -k shadow_changes
+  - systemctl enable --now auditd || true
+  - augenrules --load || service auditd restart || true
 
   # System Services
-  - systemctl daemon-reload
-  - systemctl enable --now qemu-guest-agent
-  - systemctl restart qemu-guest-agent
-  - systemctl enable --now ssh
-  - systemctl restart ssh
-  - systemctl enable --now chrony
-  - systemctl enable --now fail2ban
-  - systemctl enable --now systemd-resolved
-  
+  - systemctl daemon-reload || true
+  - systemctl enable --now qemu-guest-agent || true
+  - systemctl restart qemu-guest-agent || true
+  - systemctl enable --now ssh || true
+  - systemctl restart ssh || true
+  - systemctl enable --now chrony || true
+  - systemctl enable --now fail2ban || true
+  - systemctl restart fail2ban || true
+  - systemctl enable --now systemd-resolved || true
+
   # Apply sysctl changes
-  - sysctl -p /etc/sysctl.d/99-security.conf
-  - sysctl --system
-  
+  - sysctl -p /etc/sysctl.d/99-security.conf || true
+  - sysctl --system || true
+
   # Set hostname
   - hostnamectl set-hostname ${HOSTNAME}
-  
+
   # Configure timezone
   - timedatectl set-timezone UTC
 
@@ -253,20 +261,17 @@ runcmd:
   - apt-get autoremove -y
   - apt-get clean
   - sync
-  
+
   # Log network configuration
   - ip addr show >> /var/log/cloud-init-network.log
   - ip route show >> /var/log/cloud-init-network.log
   - cat /etc/resolv.conf >> /var/log/cloud-init-network.log
-  
+
   # Create success marker
   - |
+    set -e
     echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
-
-  - |
     echo "Hostname: ${HOSTNAME}" >> /var/log/cloud-init.success
-
-  - |
     echo "Environment: ${environment}" >> /var/log/cloud-init.success
 
 ##############################################
