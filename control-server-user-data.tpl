@@ -40,8 +40,8 @@ write_files:
       AcceptEnv LANG LC_*
       Subsystem sftp /usr/lib/openssh/sftp-server
       ClientAliveInterval ${ssh_client_alive_interval}
-      ClientAliveCountMax ${ssh_client_alive_count_max} 
-      MaxAuthTries ${ssh_max_auth_tries} 
+      ClientAliveCountMax ${ssh_client_alive_count_max}
+      MaxAuthTries ${ssh_max_auth_tries}
       MaxSessions ${ssh_max_sessions}
 
   # Sysctl Security Hardening
@@ -119,6 +119,14 @@ write_files:
       [Journal]
       Storage=persistent
       SystemMaxUse=1G
+
+  # Persistent auditd rules
+  - path: /etc/audit/rules.d/99-hardening.rules
+    permissions: '0640'
+    owner: root:root
+    content: |
+      -w /etc/passwd -p wa -k passwd_changes
+      -w /etc/shadow -p wa -k shadow_changes
 
 ##############################################
 # User Configuration
@@ -229,63 +237,61 @@ bootcmd:
 # Run Commands (After Package Installation)
 #############################################
 runcmd:
-  # Update CA certificates
+  # Update CA certificates (if we wrote a custom root CA)
 %{ if CA_ROOT_CRT != "" ~}
-  - update-ca-certificates
+  - update-ca-certificates || true
 %{ endif ~}
 
   # Make journald persistent
   - mkdir -p /var/log/journal
-  - systemctl restart systemd-journald
+  - systemctl restart systemd-journald || true
 
-  # Auditd
-  - systemctl enable --now auditd
-  - auditctl -w /etc/passwd -p wa -k passwd_changes
-  - auditctl -w /etc/shadow -p wa -k shadow_changes
+  # Auditd: enable and load rules
+  - systemctl enable --now auditd || true
+  - augenrules --load || service auditd restart || true
 
   # System Services
-  - systemctl daemon-reload
-  - systemctl enable --now qemu-guest-agent
-  - systemctl restart qemu-guest-agent
-  - systemctl enable --now ssh
-  - systemctl restart ssh
-  - systemctl enable --now chrony
-  - systemctl enable --now fail2ban
-  - systemctl enable --now systemd-resolved
+  - systemctl daemon-reload || true
+  - systemctl enable --now qemu-guest-agent || true
+  - systemctl restart qemu-guest-agent || true
+  - systemctl enable --now ssh || true
+  - systemctl restart ssh || true
+  - systemctl enable --now chrony || true
+  - systemctl enable --now fail2ban || true
+  - systemctl restart fail2ban || true
+  - systemctl enable --now systemd-resolved || true
 
   # Apply sysctl changes
-  - sysctl -p /etc/sysctl.d/99-security.conf
-  - sysctl --system
+  - sysctl -p /etc/sysctl.d/99-security.conf || true
+  - sysctl --system || true
 
   # Set hostname
   - hostnamectl set-hostname ${HOSTNAME}
-  
+
   # Configure timezone
   - timedatectl set-timezone UTC
 
-  # Git Configuration for all users
+  # Git Configuration for all users (system level)
   - git config --system user.name "${git_username}"
   - git config --system user.email "${git_email}"
   - git config --system init.defaultBranch main
-  
+
   # Install HashiCorp Repository
   - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
   - apt-get update
-  
-  # Install Terraform
+
+  # Install Terraform (from repo)
   - apt-get install -y terraform
-  
-  # Install Ansible Collections
-  - ansible-galaxy collection install community.general community.docker
-  
-  # Create project directories
-  
+
+  # Install Ansible Collections (idempotent)
+  - ansible-galaxy collection install community.general community.docker || true
+
   # Cleanup
   - apt-get autoremove -y
   - apt-get clean
   - sync
-  
+
   # Log network configuration
   - ip addr show >> /var/log/cloud-init-network.log
   - ip route show >> /var/log/cloud-init-network.log
@@ -293,17 +299,12 @@ runcmd:
 
   # Create success marker
   - |
+    set -e
     echo "Cloud-init completed successfully on $(date)" | tee /var/log/cloud-init.success
-
-  - |
     echo "Hostname: ${HOSTNAME}" >> /var/log/cloud-init.success
-
-  - |
     echo "Environment: ${environment}" >> /var/log/cloud-init.success
-
-  # Log app configuration
-  - terraform version >> /var/log/cloud-init.success 2>&1
-  - ansible --version >> /var/log/cloud-init.success 2>&1
+    terraform version >> /var/log/cloud-init.success 2>&1 || true
+    ansible --version >> /var/log/cloud-init.success 2>&1 || true
 
 ##############################################
 # Final Configuration
