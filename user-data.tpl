@@ -126,8 +126,75 @@ write_files:
     permissions: '0640'
     owner: root:root
     content: |
-      -w /etc/passwd -p wa -k passwd_changes
-      -w /etc/shadow -p wa -k shadow_changes
+      ###############################################
+      # Clear existing rules
+      ###############################################
+      -D
+
+      ###############################################
+      # Buffer size & failure mode
+      ###############################################
+      -b 8192
+      -f 1
+
+      ###############################################
+      # Identity files
+      ###############################################
+      -w /etc/passwd -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+      -w /etc/group -p wa -k identity
+      -w /etc/gshadow -p wa -k identity
+      -w /etc/sudoers -p wa -k sudo_changes
+      -w /etc/sudoers.d/ -p wa -k sudo_changes
+
+      ###############################################
+      # Network configuration
+      ###############################################
+      -w /etc/hosts -p wa -k network_config
+      -w /etc/network/ -p wa -k network_config
+      -w /etc/netplan/ -p wa -k network_config
+
+      ###############################################
+      # SSH configuration
+      ###############################################
+      -w /etc/ssh/sshd_config -p wa -k sshd_config
+      -w /etc/ssh/sshd_config.d/ -p wa -k sshd_config
+
+      ###############################################
+      # Privileged command execution (execve)
+      ###############################################
+      -a always,exit -F arch=b64 -S execve -F euid=0 -k privileged_exec
+      -a always,exit -F arch=b32 -S execve -F euid=0 -k privileged_exec
+
+      ###############################################
+      # Unauthorized access attempts
+      ###############################################
+      -a always,exit -F arch=b64 -S open,openat,creat -F exit=-EACCES -k access_denied
+      -a always,exit -F arch=b64 -S open,openat,creat -F exit=-EPERM -k access_denied
+      -a always,exit -F arch=b32 -S open,openat,creat -F exit=-EACCES -k access_denied
+      -a always,exit -F arch=b32 -S open,openat,creat -F exit=-EPERM -k access_denied
+
+      ###############################################
+      # Kernel module loading/unloading
+      ###############################################
+      -w /sbin/insmod -p x -k kernel_modules
+      -w /sbin/modprobe -p x -k kernel_modules
+      -w /sbin/rmmod -p x -k kernel_modules
+
+      -a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k kernel_modules
+      -a always,exit -F arch=b32 -S init_module,finit_module,delete_module -k kernel_modules
+
+      ###############################################
+      # Cron changes
+      ###############################################
+      -w /etc/crontab -p wa -k cron
+      -w /etc/cron.d/ -p wa -k cron
+      -w /var/spool/cron/ -p wa -k cron
+
+      ###############################################
+      # Immutable flag - must be last
+      ###############################################
+      -e 2
 
 ##############################################
 # User Configuration
