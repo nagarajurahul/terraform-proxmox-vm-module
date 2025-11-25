@@ -334,6 +334,16 @@ EOT
 }
 
 ##############################################
+# Install Docker Flag
+##############################################
+
+variable "install_docker" {
+  description = "Whether to install Docker during cloud-init"
+  type        = bool
+  default     = true
+}
+
+##############################################
 # Example Usage Notes
 ##############################################
 # - virtual_environment_endpoint : Proxmox API URL

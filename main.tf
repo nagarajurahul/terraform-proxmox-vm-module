@@ -40,6 +40,8 @@ locals {
       users         = var.users
       LOCK_PASSWORD = var.lock_password
 
+      install_docker = var.install_docker
+
       ssh_client_alive_interval  = var.ssh_client_alive_interval
       ssh_client_alive_count_max = var.ssh_client_alive_count_max
       ssh_max_auth_tries         = var.ssh_max_auth_tries
