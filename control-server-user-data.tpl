@@ -195,6 +195,21 @@ write_files:
       ###############################################
       -e 2
 
+%{ if install_docker ~}
+  # Docker daemon configuration
+  - path: /etc/docker/daemon.json
+    permissions: '0644'
+    owner: root:root
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "50m",
+          "max-file": "3"
+        },
+        "storage-driver": "overlay2"
+      }
+%{ endif ~}
 
 ##############################################
 # User Configuration
@@ -204,7 +219,7 @@ users:
   - name: ${username}
     gecos: ${username} ${HOSTNAME}
     sudo: [ 'ALL=(ALL) NOPASSWD:ALL' ]
-    groups: [ sudo, adm, systemd-journal ]
+    groups: [ sudo, adm, systemd-journal%{ if install_docker ~}, docker%{ endif ~} ]
     shell: /bin/bash
     hashed_passwd: ${user.hashed_password}
     ssh_authorized_keys:
@@ -344,6 +359,53 @@ runcmd:
   - git config --system user.email "${git_email}"
   - git config --system init.defaultBranch main
 
+%{ if install_docker ~}
+  ##############################################
+  # Docker Installation
+  ##############################################
+  - echo "=== Installing Docker Engine ==="
+  
+  # Detect distro codename
+  - DISTRO_CODENAME=$(. /etc/os-release && echo "$${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+  
+  # Remove old versions if present
+  - apt-get remove -y docker docker-engine docker.io containerd runc || true
+  
+  # Create keyrings directory
+  - install -m 0755 -d /etc/apt/keyrings
+  
+  # Download and store Docker's official GPG key
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  
+  # Add Docker APT repository
+  - |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+  # Update package index
+  - apt-get update -y
+  
+  # Install Docker packages
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  
+  # Enable and start Docker services
+  - systemctl enable docker.service
+  - systemctl start docker.service
+  - systemctl enable containerd.service
+  - systemctl start containerd.service
+  
+  # Verify Docker is running
+  - systemctl is-active --quiet docker && echo "Docker service is running." || echo "Docker service not running."
+  
+  # Test Docker installation
+  - docker run --rm hello-world || true
+  
+  - echo "Docker installation completed successfully!"
+  
+  # NOTE: Users already have docker group from user creation above
+  # No usermod needed, no restart needed!
+%{ endif ~}
+
   # Install HashiCorp Repository
   - wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list
@@ -373,6 +435,13 @@ runcmd:
     echo "Environment: ${environment}" >> /var/log/cloud-init.success
     terraform version >> /var/log/cloud-init.success 2>&1 || true
     ansible --version >> /var/log/cloud-init.success 2>&1 || true
+%{ if install_docker ~}
+    docker --version >> /var/log/cloud-init.success 2>&1 || true
+    echo "" >> /var/log/cloud-init.success
+    echo "Docker installation: SUCCESS" >> /var/log/cloud-init.success
+    echo "Users in docker group:" >> /var/log/cloud-init.success
+    getent group docker >> /var/log/cloud-init.success 2>&1 || true
+%{ endif ~}
 
 ##############################################
 # Final Configuration
@@ -392,4 +461,7 @@ final_message: |
   Control Server Ready!
   Terraform: Installed
   Ansible: Installed
+%{ if install_docker ~}
+  Docker: Installed
+%{ endif ~}
   ====================================
