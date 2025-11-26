@@ -243,7 +243,9 @@ package_upgrade: true
 package_reboot_if_required: true
 
 packages:
-# Essential Tools
+##############################################
+# Essential System Tools
+##############################################
 - sudo
 - vim
 - nano
@@ -251,59 +253,97 @@ packages:
 - wget
 - unzip
 - zip
-- tree
+- ca-certificates
 - gnupg
 - lsb-release
-- ca-certificates
-- software-properties-common
 - apt-transport-https
+- software-properties-common
 
-# QEMU Guest Agent
+##############################################
+# QEMU Guest Agent (Proxmox Integration)
+##############################################
 - qemu-guest-agent
 
-# Time Sync
+##############################################
+# Time Synchronization
+##############################################
 - chrony
 
-# Networking
+##############################################
+# Networking Tools
+##############################################
+- iproute2
+- iputils-ping
 - net-tools
 - dnsutils
 - traceroute
 - netcat-openbsd
-- iproute2
-- iputils-ping
+- mtr
+- nmap
+- iperf3
 
-# Monitoring
+##############################################
+# System Monitoring & Performance
+##############################################
 - htop
 - iotop
 - iftop
 - nmon
-- sysstat
 - ncdu
-- iperf3
+- sysstat
 - lsof
+- dstat
 
-# Security
+##############################################
+# Security & Hardening
+##############################################
 - openssh-server
 - fail2ban
 - unattended-upgrades
 - auditd
 
-# DevOps Tools
-- git
-- jq
-- yq
-- tmux
-- ansible
+##############################################
+# Python Environment (for Ansible & Scripts)
+##############################################
 - python3
 - python3-pip
 - python3-apt
 
-# GitHub CLI
-- gh
+##############################################
+# DevOps & Infrastructure Tools
+##############################################
+- git
+- ansible
+- tmux
 
-# Miscellaneous
+##############################################
+# CLI Utilities & Tools
+##############################################
+- jq
+- yq
+- tree
 - rsync
+- rclone
 - bash-completion
+- tldr
+- stat
+
+##############################################
+# Modern CLI Replacements
+##############################################
+- lsd # Modern 'ls' with colors and icons
+- ripgrep # Fast 'grep' replacement (rg)
+- fd-find # Fast 'find' replacement
+- fzf # Fuzzy finder
+- bat # 'cat' with syntax highlighting
+- delta # Better git diff viewer
+- dust # Modern 'du' replacement
+- duf # Modern 'df' replacement
+
+##############################################
+# GitHub Integration
+##############################################
+- gh # GitHub CLI
 
 ##############################################
 # Boot Commands (Run Before Packages)

@@ -227,52 +227,94 @@ package_upgrade: true
 package_reboot_if_required: true
 
 packages:
+##############################################
 # Essential System Tools
+##############################################
 - sudo
+- vim
+- nano
 - curl
 - wget
+- unzip
+- zip
 - ca-certificates
 - gnupg
 - lsb-release
 - apt-transport-https
 - software-properties-common
 
-# QEMU Guest Agent (for Proxmox / IP reporting)
+##############################################
+# QEMU Guest Agent (Proxmox Integration)
+##############################################
 - qemu-guest-agent
 
+##############################################
 # Time Synchronization
+##############################################
 - chrony
 
+##############################################
 # Networking Tools
+##############################################
 - iproute2
 - iputils-ping
 - net-tools
 - dnsutils
 - traceroute
 - netcat-openbsd
+- mtr
+- nmap
+- tcpdump
 
-# System Monitoring
+##############################################
+# System Monitoring & Performance
+##############################################
 - htop
 - iotop
+- iftop
+- nmon
 - ncdu
 - sysstat
 - lsof
+- dstat
+- strace
+- linux-tools-generic # perf tools
 
-# Security
+##############################################
+# Security & Hardening
+##############################################
 - openssh-server
 - fail2ban
 - unattended-upgrades
 - auditd
 
-# Python (for Ansible/automation from control node)
+##############################################
+# Python Environment (for Ansible & Scripts)
+##############################################
 - python3
 - python3-pip
 - python3-apt
 
-# Miscellaneous
-- vim
+##############################################
+# CLI Utilities & Tools
+##############################################
+- jq
+- tree
 - rsync
 - bash-completion
+- stat
+
+##############################################
+# Modern CLI Replacements
+##############################################
+- lsd # Modern 'ls' with colors and icons
+- ripgrep # Fast 'grep' replacement (rg)
+- fd-find # Fast 'find' replacement
+- fzf # Fuzzy finder
+- bat # 'cat' with syntax highlighting
+- delta # Better git diff viewer
+- dust # Modern 'du' replacement
+- duf # Modern 'df' replacement
 
 ##############################################
 # Boot Commands (Run Before Packages)
