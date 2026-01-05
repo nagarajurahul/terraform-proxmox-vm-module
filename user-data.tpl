@@ -335,19 +335,6 @@ bootcmd:
       sleep 2
     done
 
-  # Wait for DNS via systemd-resolved (POSIX-safe)
-  - |
-    for i in $(seq 1 15); do
-      resolvectl query archive.ubuntu.com >/dev/null 2>&1 && break
-      echo "Waiting for DNS resolution... attempt $i" | tee -a /var/log/cloud-init-network.log
-      sleep 2
-    done
-
-  # Log resolver state
-  - |
-    resolvectl status >> /var/log/cloud-init-network.log
-    resolvectl dns >> /var/log/cloud-init-network.log
-
 ##############################################
 # Run Commands (After Package Installation)
 #############################################
