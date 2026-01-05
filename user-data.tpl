@@ -322,10 +322,31 @@ packages:
 bootcmd:
   - test -f /var/lib/cloud/bootcmd_done && exit 0 || touch /var/lib/cloud/bootcmd_done
   - echo "Ensuring network comes up before packages..." | tee -a /var/log/cloud-init-network.log
-  - sleep 10
+  - sleep 20
   - netplan generate
   - netplan apply || (sleep 5 && netplan apply)
   - systemctl restart systemd-networkd || true
+
+  # Wait for IP address (not just link UP)
+  - |
+    for i in {1..30}; do
+      ip addr show | grep -q "inet .* scope global" && break
+      echo "Waiting for IP address... attempt $i" | tee -a /var/log/cloud-init-network.log
+      sleep 2
+    done
+
+  # Wait for systemd-resolved DNS
+  - |
+    for i in {1..15}; do
+      resolvectl query archive.ubuntu.com >/dev/null 2>&1 && break
+      echo "Waiting for DNS resolution... attempt $i" | tee -a /var/log/cloud-init-network.log
+      sleep 2
+    done
+
+  # Log resolver state for debugging
+  - |
+    resolvectl status >> /var/log/cloud-init-network.log
+    resolvectl dns >> /var/log/cloud-init-network.log
 
 ##############################################
 # Run Commands (After Package Installation)
