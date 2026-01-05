@@ -129,7 +129,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   # QEMU, helpful to get IP and other things
   agent {
     enabled = true
-    timeout = "10m"
+    timeout = "15m"
     trim    = true
     type    = var.network_model
   }
