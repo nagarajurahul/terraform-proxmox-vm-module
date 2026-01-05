@@ -327,23 +327,23 @@ bootcmd:
   - netplan apply || (sleep 5 && netplan apply)
   - systemctl restart systemd-networkd || true
 
-  # Wait for IP address (not just link UP)
+  # Wait for IP address (POSIX-safe)
   - |
-    for i in {1..30}; do
+    for i in $(seq 1 30); do
       ip addr show | grep -q "inet .* scope global" && break
       echo "Waiting for IP address... attempt $i" | tee -a /var/log/cloud-init-network.log
       sleep 2
     done
 
-  # Wait for systemd-resolved DNS
+  # Wait for DNS via systemd-resolved (POSIX-safe)
   - |
-    for i in {1..15}; do
+    for i in $(seq 1 15); do
       resolvectl query archive.ubuntu.com >/dev/null 2>&1 && break
       echo "Waiting for DNS resolution... attempt $i" | tee -a /var/log/cloud-init-network.log
       sleep 2
     done
 
-  # Log resolver state for debugging
+  # Log resolver state
   - |
     resolvectl status >> /var/log/cloud-init-network.log
     resolvectl dns >> /var/log/cloud-init-network.log
